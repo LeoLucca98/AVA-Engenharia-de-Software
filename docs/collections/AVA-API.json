@@ -1,0 +1,646 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2024-01-01T12:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2023.5.8",
+  "resources": [
+    {
+      "_id": "req_health_gateway",
+      "parentId": "fld_health",
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "url": "{{ _.base_url }}/healthz",
+      "name": "API Gateway Health",
+      "description": "Health check do API Gateway",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1704110400000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_health_auth",
+      "parentId": "fld_health",
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "url": "{{ _.auth_url }}/healthz/",
+      "name": "Auth Service Health",
+      "description": "Health check do Auth Service",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1704110399999,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_health_learning",
+      "parentId": "fld_health",
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "url": "{{ _.learning_url }}/healthz/",
+      "name": "Learning Service Health",
+      "description": "Health check do Learning Service",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1704110399998,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_health_rec",
+      "parentId": "fld_health",
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "url": "{{ _.rec_url }}/healthz/",
+      "name": "Recommendation Service Health",
+      "description": "Health check do Recommendation Service",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1704110399997,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_health_frontend",
+      "parentId": "fld_health",
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "url": "{{ _.frontend_url }}/healthz",
+      "name": "Frontend Health",
+      "description": "Health check do Frontend",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1704110399996,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_jwks",
+      "parentId": "fld_auth",
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "url": "{{ _.auth_url }}/api/.well-known/jwks.json",
+      "name": "JWKS Endpoint",
+      "description": "Obter chaves públicas para validação JWT",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1704110399995,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_register",
+      "parentId": "fld_auth",
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "url": "{{ _.base_url }}/auth/register/",
+      "name": "User Registration",
+      "description": "Registrar novo usuário",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\",\n  \"username\": \"testuser\",\n  \"first_name\": \"Test\",\n  \"last_name\": \"User\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1704110399994,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_login",
+      "parentId": "fld_auth",
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "url": "{{ _.base_url }}/auth/login/",
+      "name": "User Login",
+      "description": "Fazer login e obter JWT token",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin123\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1704110399993,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_user_info",
+      "parentId": "fld_auth",
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "url": "{{ _.base_url }}/auth/user/",
+      "name": "Get User Info",
+      "description": "Obter informações do usuário logado",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.jwt_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1704110399992,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_refresh_token",
+      "parentId": "fld_auth",
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "url": "{{ _.base_url }}/auth/token/refresh/",
+      "name": "Refresh Token",
+      "description": "Renovar JWT token",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"refresh\": \"{{ _.refresh_token }}\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1704110399991,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_courses_list",
+      "parentId": "fld_learning",
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "url": "{{ _.base_url }}/learning/courses/",
+      "name": "Get All Courses",
+      "description": "Listar todos os cursos",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.jwt_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1704110399990,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_course_detail",
+      "parentId": "fld_learning",
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "url": "{{ _.base_url }}/learning/courses/1/",
+      "name": "Get Course by ID",
+      "description": "Obter detalhes de um curso específico",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.jwt_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1704110399989,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_create_course",
+      "parentId": "fld_learning",
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "url": "{{ _.base_url }}/learning/courses/",
+      "name": "Create Course",
+      "description": "Criar novo curso",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"title\": \"Novo Curso\",\n  \"description\": \"Descrição do novo curso\",\n  \"tags\": [\"python\", \"programming\"],\n  \"is_published\": true\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.jwt_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1704110399988,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_enroll_course",
+      "parentId": "fld_learning",
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "url": "{{ _.base_url }}/learning/enrollments/",
+      "name": "Enroll in Course",
+      "description": "Matricular-se em um curso",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"course\": 1,\n  \"role\": \"student\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.jwt_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1704110399987,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_my_courses",
+      "parentId": "fld_learning",
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "url": "{{ _.base_url }}/learning/my-courses/",
+      "name": "Get My Enrollments",
+      "description": "Obter cursos do usuário logado",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.jwt_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1704110399986,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_mark_complete",
+      "parentId": "fld_learning",
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "url": "{{ _.base_url }}/learning/progress/mark-complete/",
+      "name": "Mark Lesson Complete",
+      "description": "Marcar lição como concluída",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"lesson\": 1,\n  \"completed\": true,\n  \"score\": 0.95\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.jwt_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1704110399985,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_my_recommendations",
+      "parentId": "fld_rec",
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "url": "{{ _.base_url }}/rec/recommendations/me?limit=10",
+      "name": "Get My Recommendations",
+      "description": "Obter recomendações para o usuário logado",
+      "method": "GET",
+      "body": {},
+      "parameters": [
+        {
+          "name": "limit",
+          "value": "10"
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.jwt_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1704110399984,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_user_recommendations",
+      "parentId": "fld_rec",
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "url": "{{ _.base_url }}/rec/recommendations/user/{{ _.user_id }}?limit=10",
+      "name": "Get User Recommendations",
+      "description": "Obter recomendações para um usuário específico",
+      "method": "GET",
+      "body": {},
+      "parameters": [
+        {
+          "name": "limit",
+          "value": "10"
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.jwt_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1704110399983,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_interaction_event",
+      "parentId": "fld_rec",
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "url": "{{ _.base_url }}/rec/events/interaction",
+      "name": "Send Interaction Event",
+      "description": "Enviar evento de interação",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"user_id\": {{ _.user_id }},\n  \"lesson_id\": 1,\n  \"interaction_type\": \"view\",\n  \"payload\": {\n    \"duration\": 120,\n    \"completed\": true\n  }\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.jwt_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1704110399982,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "fld_health",
+      "parentId": "wrk_ava",
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "name": "Health Checks",
+      "description": "Endpoints de verificação de saúde dos serviços",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1704110400000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_auth",
+      "parentId": "wrk_ava",
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "name": "Auth Service",
+      "description": "Endpoints de autenticação e autorização",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1704110399999,
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_learning",
+      "parentId": "wrk_ava",
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "name": "Learning Service",
+      "description": "Endpoints de cursos, módulos, lições e progresso",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1704110399998,
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_rec",
+      "parentId": "wrk_ava",
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "name": "Recommendation Service",
+      "description": "Endpoints de recomendações e eventos de interação",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1704110399997,
+      "_type": "request_group"
+    },
+    {
+      "_id": "wrk_ava",
+      "parentId": null,
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "name": "AVA API Collection",
+      "description": "Collection completa das APIs do AVA (Adaptive Virtual Assistant)",
+      "scope": "collection",
+      "_type": "workspace"
+    },
+    {
+      "_id": "env_ava",
+      "parentId": "wrk_ava",
+      "modified": 1704110400000,
+      "created": 1704110400000,
+      "name": "AVA Environment",
+      "data": {
+        "base_url": "http://localhost:8080",
+        "auth_url": "http://localhost:8001",
+        "learning_url": "http://localhost:8002",
+        "rec_url": "http://localhost:8003",
+        "frontend_url": "http://localhost:4200",
+        "jwt_token": "",
+        "user_id": ""
+      },
+      "dataPropertyOrder": {
+        "&": [
+          "base_url",
+          "auth_url",
+          "learning_url",
+          "rec_url",
+          "frontend_url",
+          "jwt_token",
+          "user_id"
+        ]
+      },
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1704110400000,
+      "_type": "environment"
+    }
+  ]
+}

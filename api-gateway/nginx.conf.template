@@ -1,0 +1,222 @@
+# API Gateway NGINX Configuration
+# Template com variáveis de ambiente
+
+# Rate limiting zones
+limit_req_zone $binary_remote_addr zone=auth_limit:10m rate=100r/m;
+limit_req_zone $binary_remote_addr zone=learning_limit:10m rate=100r/m;
+limit_req_zone $binary_remote_addr zone=rec_limit:10m rate=100r/m;
+
+# Upstream definitions
+upstream auth_service {
+    server ${AUTH_SERVICE_URL};
+    keepalive 32;
+}
+
+upstream learning_service {
+    server ${LEARNING_SERVICE_URL};
+    keepalive 32;
+}
+
+upstream recommendation_service {
+    server ${RECOMMENDATION_SERVICE_URL};
+    keepalive 32;
+}
+
+# Main server block
+server {
+    listen 80;
+    server_name _;
+    
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types
+        text/plain
+        text/css
+        text/xml
+        text/javascript
+        application/json
+        application/javascript
+        application/xml+rss
+        application/atom+xml
+        image/svg+xml;
+    
+    # CORS configuration
+    set $cors_origin "";
+    if ($http_origin ~* "^${ALLOWED_ORIGINS}$") {
+        set $cors_origin $http_origin;
+    }
+    
+    # Health check endpoint
+    location /healthz {
+        access_log off;
+        return 200 "OK\n";
+        add_header Content-Type text/plain;
+    }
+    
+    # Auth service routes
+    location /auth/ {
+        # Rate limiting
+        limit_req zone=auth_limit burst=20 nodelay;
+        
+        # CORS headers
+        add_header Access-Control-Allow-Origin $cors_origin always;
+        add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
+        add_header Access-Control-Allow-Headers "Authorization, Content-Type, X-Request-Id, X-User-Id" always;
+        add_header Access-Control-Allow-Credentials "true" always;
+        
+        # Handle preflight requests
+        if ($request_method = 'OPTIONS') {
+            add_header Access-Control-Allow-Origin $cors_origin;
+            add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS";
+            add_header Access-Control-Allow-Headers "Authorization, Content-Type, X-Request-Id, X-User-Id";
+            add_header Access-Control-Allow-Credentials "true";
+            add_header Access-Control-Max-Age 86400;
+            add_header Content-Length 0;
+            add_header Content-Type text/plain;
+            return 204;
+        }
+        
+        # Proxy configuration
+        proxy_pass http://auth_service/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        
+        # Pass-through headers
+        proxy_set_header Authorization $http_authorization;
+        proxy_set_header X-Request-Id $http_x_request_id;
+        proxy_set_header X-User-Id $http_x_user_id;
+        
+        # Timeouts
+        proxy_connect_timeout 30s;
+        proxy_send_timeout 30s;
+        proxy_read_timeout 30s;
+    }
+    
+    # Learning service routes
+    location /learning/ {
+        # Rate limiting
+        limit_req zone=learning_limit burst=20 nodelay;
+        
+        # CORS headers
+        add_header Access-Control-Allow-Origin $cors_origin always;
+        add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
+        add_header Access-Control-Allow-Headers "Authorization, Content-Type, X-Request-Id, X-User-Id" always;
+        add_header Access-Control-Allow-Credentials "true" always;
+        
+        # Handle preflight requests
+        if ($request_method = 'OPTIONS') {
+            add_header Access-Control-Allow-Origin $cors_origin;
+            add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS";
+            add_header Access-Control-Allow-Headers "Authorization, Content-Type, X-Request-Id, X-User-Id";
+            add_header Access-Control-Allow-Credentials "true";
+            add_header Access-Control-Max-Age 86400;
+            add_header Content-Length 0;
+            add_header Content-Type text/plain;
+            return 204;
+        }
+        
+        # Proxy configuration
+        proxy_pass http://learning_service/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        
+        # Pass-through headers
+        proxy_set_header Authorization $http_authorization;
+        proxy_set_header X-Request-Id $http_x_request_id;
+        proxy_set_header X-User-Id $http_x_user_id;
+        
+        # Timeouts
+        proxy_connect_timeout 30s;
+        proxy_send_timeout 30s;
+        proxy_read_timeout 30s;
+    }
+    
+    # Recommendation service routes
+    location /rec/ {
+        # Rate limiting
+        limit_req zone=rec_limit burst=20 nodelay;
+        
+        # CORS headers
+        add_header Access-Control-Allow-Origin $cors_origin always;
+        add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
+        add_header Access-Control-Allow-Headers "Authorization, Content-Type, X-Request-Id, X-User-Id" always;
+        add_header Access-Control-Allow-Credentials "true" always;
+        
+        # Handle preflight requests
+        if ($request_method = 'OPTIONS') {
+            add_header Access-Control-Allow-Origin $cors_origin;
+            add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS";
+            add_header Access-Control-Allow-Headers "Authorization, Content-Type, X-Request-Id, X-User-Id";
+            add_header Access-Control-Allow-Credentials "true";
+            add_header Access-Control-Max-Age 86400;
+            add_header Content-Length 0;
+            add_header Content-Type text/plain;
+            return 204;
+        }
+        
+        # Proxy configuration
+        proxy_pass http://recommendation_service/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        
+        # Pass-through headers
+        proxy_set_header Authorization $http_authorization;
+        proxy_set_header X-Request-Id $http_x_request_id;
+        proxy_set_header X-User-Id $http_x_user_id;
+        
+        # Timeouts
+        proxy_connect_timeout 30s;
+        proxy_send_timeout 30s;
+        proxy_read_timeout 30s;
+    }
+    
+    # Default route - return 404 for unmatched paths
+    location / {
+        return 404 '{"error": "Route not found", "message": "The requested route does not exist on this API Gateway"}';
+        add_header Content-Type application/json;
+    }
+    
+    # Error pages
+    error_page 404 /404.json;
+    error_page 500 502 503 504 /50x.json;
+    
+    location = /404.json {
+        internal;
+        return 404 '{"error": "Not Found", "message": "The requested resource was not found"}';
+        add_header Content-Type application/json;
+    }
+    
+    location = /50x.json {
+        internal;
+        return 500 '{"error": "Internal Server Error", "message": "An internal server error occurred"}';
+        add_header Content-Type application/json;
+    }
+}

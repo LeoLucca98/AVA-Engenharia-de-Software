@@ -1,0 +1,112 @@
+/* You can add global styles to this file, and also import other style files */
+
+// Import Angular Material prebuilt theme
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+// Global styles
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+}
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+}
+
+// Custom utility classes
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.mb-16 {
+  margin-bottom: 16px;
+}
+
+.mb-24 {
+  margin-bottom: 24px;
+}
+
+.mt-16 {
+  margin-top: 16px;
+}
+
+.mt-24 {
+  margin-top: 24px;
+}
+
+.p-16 {
+  padding: 16px;
+}
+
+.p-24 {
+  padding: 24px;
+}
+
+// Loading spinner
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+// Error message
+.error-message {
+  color: #f44336;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+// Success message
+.success-message {
+  color: #3f51b5;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+// Card styles
+.course-card {
+  transition: transform 0.2s ease-in-out;
+  cursor: pointer;
+  
+  &:hover {
+    transform: translateY(-4px);
+  }
+}
+
+// Progress bar
+.progress-container {
+  margin: 16px 0;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .main-content {
+    padding: 16px;
+  }
+  
+  .course-card {
+    margin-bottom: 16px;
+  }
+}
+
+// Dark theme support
+@media (prefers-color-scheme: dark) {
+  .mat-mdc-card {
+    background-color: #424242;
+    color: white;
+  }
+}

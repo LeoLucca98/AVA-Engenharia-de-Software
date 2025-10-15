@@ -1,0 +1,80 @@
+name: ava
+services:
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    env_file:
+      - ./env.example
+    depends_on:
+      - auth_service
+      - learning_service
+      - recommendation_service
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    networks: [ava_net]
+
+  auth_service:
+    build:
+      context: ./auth_service
+      dockerfile: Dockerfile
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings
+    ports:
+      - "8001:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz/"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    networks: [ava_net]
+
+  learning_service:
+    build:
+      context: ./learning_service
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz/"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    networks: [ava_net]
+
+  recommendation_service:
+    build:
+      context: ./recommendation_service
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    networks: [ava_net]
+
+  ava-frontend:
+    build:
+      context: ./ava-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    networks: [ava_net]
+
+networks:
+  ava_net:
+    driver: bridge

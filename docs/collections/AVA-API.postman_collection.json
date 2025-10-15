@@ -1,0 +1,593 @@
+{
+  "info": {
+    "name": "AVA API Collection",
+    "description": "Collection completa das APIs do AVA (Adaptive Virtual Assistant)",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "auth_url",
+      "value": "http://localhost:8001",
+      "type": "string"
+    },
+    {
+      "key": "learning_url",
+      "value": "http://localhost:8002",
+      "type": "string"
+    },
+    {
+      "key": "rec_url",
+      "value": "http://localhost:8003",
+      "type": "string"
+    },
+    {
+      "key": "frontend_url",
+      "value": "http://localhost:4200",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Checks",
+      "item": [
+        {
+          "name": "API Gateway Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/healthz",
+              "host": ["{{base_url}}"],
+              "path": ["healthz"]
+            }
+          }
+        },
+        {
+          "name": "Auth Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{auth_url}}/healthz/",
+              "host": ["{{auth_url}}"],
+              "path": ["healthz", ""]
+            }
+          }
+        },
+        {
+          "name": "Learning Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{learning_url}}/healthz/",
+              "host": ["{{learning_url}}"],
+              "path": ["healthz", ""]
+            }
+          }
+        },
+        {
+          "name": "Recommendation Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{rec_url}}/healthz/",
+              "host": ["{{rec_url}}"],
+              "path": ["healthz", ""]
+            }
+          }
+        },
+        {
+          "name": "Frontend Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{frontend_url}}/healthz",
+              "host": ["{{frontend_url}}"],
+              "path": ["healthz"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth Service",
+      "item": [
+        {
+          "name": "JWKS Endpoint",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{auth_url}}/api/.well-known/jwks.json",
+              "host": ["{{auth_url}}"],
+              "path": ["api", ".well-known", "jwks.json"]
+            }
+          }
+        },
+        {
+          "name": "User Registration",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('user_id', response.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\",\n  \"username\": \"testuser\",\n  \"first_name\": \"Test\",\n  \"last_name\": \"User\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register/",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register", ""]
+            }
+          }
+        },
+        {
+          "name": "User Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('jwt_token', response.access);",
+                  "    pm.collectionVariables.set('user_id', response.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login/",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login", ""]
+            }
+          }
+        },
+        {
+          "name": "Get User Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/user/",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "user", ""]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('jwt_token', response.access);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/token/refresh/",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "token", "refresh", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Learning Service",
+      "item": [
+        {
+          "name": "Get All Courses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/learning/courses/",
+              "host": ["{{base_url}}"],
+              "path": ["learning", "courses", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Course by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/learning/courses/1/",
+              "host": ["{{base_url}}"],
+              "path": ["learning", "courses", "1", ""]
+            }
+          }
+        },
+        {
+          "name": "Create Course",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Novo Curso\",\n  \"description\": \"Descrição do novo curso\",\n  \"tags\": [\"python\", \"programming\"],\n  \"is_published\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/learning/courses/",
+              "host": ["{{base_url}}"],
+              "path": ["learning", "courses", ""]
+            }
+          }
+        },
+        {
+          "name": "Update Course",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Curso Atualizado\",\n  \"description\": \"Descrição atualizada\",\n  \"tags\": [\"python\", \"programming\", \"advanced\"],\n  \"is_published\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/learning/courses/1/",
+              "host": ["{{base_url}}"],
+              "path": ["learning", "courses", "1", ""]
+            }
+          }
+        },
+        {
+          "name": "Delete Course",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/learning/courses/1/",
+              "host": ["{{base_url}}"],
+              "path": ["learning", "courses", "1", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Course Modules",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/learning/courses/1/modules/",
+              "host": ["{{base_url}}"],
+              "path": ["learning", "courses", "1", "modules", ""]
+            }
+          }
+        },
+        {
+          "name": "Create Module",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"course\": 1,\n  \"title\": \"Módulo 1\",\n  \"order\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/learning/modules/",
+              "host": ["{{base_url}}"],
+              "path": ["learning", "modules", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Module Lessons",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/learning/modules/1/lessons/",
+              "host": ["{{base_url}}"],
+              "path": ["learning", "modules", "1", "lessons", ""]
+            }
+          }
+        },
+        {
+          "name": "Create Lesson",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"module\": 1,\n  \"title\": \"Lição 1\",\n  \"content\": \"Conteúdo da lição em Markdown\",\n  \"order\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/learning/lessons/",
+              "host": ["{{base_url}}"],
+              "path": ["learning", "lessons", ""]
+            }
+          }
+        },
+        {
+          "name": "Enroll in Course",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"course\": 1,\n  \"role\": \"student\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/learning/enrollments/",
+              "host": ["{{base_url}}"],
+              "path": ["learning", "enrollments", ""]
+            }
+          }
+        },
+        {
+          "name": "Get My Enrollments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/learning/my-courses/",
+              "host": ["{{base_url}}"],
+              "path": ["learning", "my-courses", ""]
+            }
+          }
+        },
+        {
+          "name": "Mark Lesson Complete",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lesson\": 1,\n  \"completed\": true,\n  \"score\": 0.95\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/learning/progress/mark-complete/",
+              "host": ["{{base_url}}"],
+              "path": ["learning", "progress", "mark-complete", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Lesson Progress",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/learning/progress/lesson/1/",
+              "host": ["{{base_url}}"],
+              "path": ["learning", "progress", "lesson", "1", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Recommendation Service",
+      "item": [
+        {
+          "name": "Get My Recommendations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/rec/recommendations/me?limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["rec", "recommendations", "me"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get User Recommendations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/rec/recommendations/user/{{user_id}}?limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["rec", "recommendations", "user", "{{user_id}}"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Recommendations",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": {{user_id}},\n  \"course_id\": 1,\n  \"limit\": 10\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/rec/recommendations/",
+              "host": ["{{base_url}}"],
+              "path": ["rec", "recommendations", ""]
+            }
+          }
+        },
+        {
+          "name": "Send Interaction Event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": {{user_id}},\n  \"lesson_id\": 1,\n  \"interaction_type\": \"view\",\n  \"payload\": {\n    \"duration\": 120,\n    \"completed\": true\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/rec/events/interaction",
+              "host": ["{{base_url}}"],
+              "path": ["rec", "events", "interaction"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "API Documentation",
+      "item": [
+        {
+          "name": "Auth Service Swagger",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{auth_url}}/api/docs/",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "docs", ""]
+            }
+          }
+        },
+        {
+          "name": "Learning Service Swagger",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{learning_url}}/learning/docs/",
+              "host": ["{{learning_url}}"],
+              "path": ["learning", "docs", ""]
+            }
+          }
+        },
+        {
+          "name": "Recommendation Service OpenAPI",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{rec_url}}/docs",
+              "host": ["{{rec_url}}"],
+              "path": ["docs"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
