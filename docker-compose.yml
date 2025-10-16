@@ -1,5 +1,57 @@
 name: ava
 services:
+  # Databases
+  auth_db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: auth_service
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - auth_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d auth_service"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [ava_net]
+
+  learning_db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: learning_service
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - learning_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d learning_service"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [ava_net]
+
+  recommendation_db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: recommendation_service
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5435:5432"
+    volumes:
+      - recommendation_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d recommendation_service"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [ava_net]
+
   api-gateway:
     build:
       context: ./api-gateway
@@ -25,8 +77,16 @@ services:
       dockerfile: Dockerfile
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings
+      - DB_HOST=auth_db
+      - DB_NAME=auth_service
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_PORT=5432
     ports:
       - "8001:8000"
+    depends_on:
+      auth_db:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/healthz/"]
       interval: 10s
@@ -40,6 +100,16 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8002:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings
+      - DB_HOST=learning_db
+      - DB_NAME=learning_service
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_PORT=5432
+    depends_on:
+      learning_db:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/healthz/"]
       interval: 10s
@@ -53,6 +123,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8003:8000"
+    depends_on:
+      recommendation_db:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
       interval: 10s
@@ -78,3 +151,8 @@ services:
 networks:
   ava_net:
     driver: bridge
+
+volumes:
+  auth_db_data:
+  learning_db_data:
+  recommendation_db_data:
