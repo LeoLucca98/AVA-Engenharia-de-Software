@@ -62,6 +62,39 @@ app.use((req, res, next) => {
   next();
 });
 
+// Welcome endpoint
+app.get('/', (req, res) => {
+  res.status(200).json({
+    service: 'AVA API Gateway',
+    version: '1.0.0',
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      health: '/healthz',
+      auth: {
+        base: '/auth',
+        login: '/auth/login/',
+        register: '/auth/register/',
+        refresh: '/auth/refresh/',
+        logout: '/auth/logout/',
+        profile: '/auth/profile/'
+      },
+      learning: {
+        base: '/learning',
+        courses: '/learning/courses/',
+        enrollments: '/learning/enrollments/',
+        progress: '/learning/progress/',
+        resources: '/learning/resources/'
+      },
+      recommendations: {
+        base: '/rec',
+        recommendations: '/rec/recommendations/',
+        interactions: '/rec/interactions/'
+      }
+    },
+    message: 'Bem-vindo ao AVA - Adaptive Virtual Assistant API'
+  });
+});
+
 // Health check endpoint
 app.get('/healthz', (req, res) => {
   res.status(200).json({

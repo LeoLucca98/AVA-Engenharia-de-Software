@@ -30,8 +30,12 @@ COPY --from=build /app/dist/ava-frontend /usr/share/nginx/html
 # Nginx com fallback SPA e /healthz
 RUN printf 'server {\n\
   listen 80;\n\
+  root /usr/share/nginx/html;\n\
+  index index.html;\n\
   location /healthz { return 200 "ok"; }\n\
-  location / { try_files $uri /index.html; }\n\
+  location / {\n\
+    try_files $uri $uri/ /index.html;\n\
+  }\n\
 }\n' > /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
