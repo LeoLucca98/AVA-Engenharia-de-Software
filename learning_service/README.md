@@ -335,6 +335,12 @@ docker-compose up -d --no-deps learning_service
 docker-compose exec learning_service python manage.py seed_data
 ```
 
+Para recriar do zero (limpa apenas os registros gerados pelo seed):
+
+```powershell
+docker-compose exec learning_service python manage.py seed_data --reset
+```
+
 ## 🔐 Autenticação
 
 ### JWT Integration

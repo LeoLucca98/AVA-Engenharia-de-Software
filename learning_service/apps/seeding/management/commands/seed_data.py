@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+from django.db import transaction
 from apps.courses.models import Course, Module, Lesson
 from apps.resources.models import Resource
 
@@ -6,35 +7,47 @@ from apps.resources.models import Resource
 class Command(BaseCommand):
     help = 'Cria dados de exemplo para o learning service'
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--reset', action='store_true', help='Remove os dados seedados antes de recriar'
+        )
+
+    @transaction.atomic
     def handle(self, *args, **options):
-        self.stdout.write('Criando dados de exemplo...')
+        reset = options.get('reset', False)
+
+        seeded_courses = ['Python para Iniciantes', 'Django Web Development']
+
+        if reset:
+            self.stdout.write('Limpando dados seedados...')
+            # Deleta apenas os cursos criados pelo seed. FK com CASCADE remove módulos, lições e recursos
+            deleted, _ = Course.objects.filter(title__in=seeded_courses).delete()
+            self.stdout.write(f'Registros removidos (em cascata): {deleted}')
+
+        self.stdout.write('Criando/atualizando dados de exemplo...')
         
         # Criar curso 1: Python para Iniciantes
-        course1, created = Course.objects.get_or_create(
+        course1, created = Course.objects.update_or_create(
             title='Python para Iniciantes',
             defaults={
                 'description': 'Aprenda Python do zero com exemplos práticos e projetos reais.',
                 'owner_id': 1,
                 'tags': ['python', 'programação', 'iniciantes'],
-                'is_published': True
-            }
+                'is_published': True,
+            },
         )
-        
-        if created:
-            self.stdout.write(f'Curso criado: {course1.title}')
+        self.stdout.write(('Curso criado: ' if created else 'Curso atualizado: ') + course1.title)
         
         # Criar módulo para o curso 1
-        module1, created = Module.objects.get_or_create(
+        module1, created = Module.objects.update_or_create(
             course=course1,
             title='Fundamentos do Python',
-            defaults={'order': 1}
+            defaults={'order': 1},
         )
-        
-        if created:
-            self.stdout.write(f'Módulo criado: {module1.title}')
+        self.stdout.write(('Módulo criado: ' if created else 'Módulo atualizado: ') + module1.title)
         
         # Criar lições para o módulo 1
-        lesson1, created = Lesson.objects.get_or_create(
+        lesson1, created = Lesson.objects.update_or_create(
             module=module1,
             title='Introdução ao Python',
             defaults={
@@ -71,13 +84,11 @@ altura = 1.75
                         'url': 'https://docs.python.org/3/tutorial/'
                     }
                 ]
-            }
+            },
         )
+        self.stdout.write(('Lição criada: ' if created else 'Lição atualizada: ') + lesson1.title)
         
-        if created:
-            self.stdout.write(f'Lição criada: {lesson1.title}')
-        
-        lesson2, created = Lesson.objects.get_or_create(
+        lesson2, created = Lesson.objects.update_or_create(
             module=module1,
             title='Variáveis e Tipos de Dados',
             defaults={
@@ -120,14 +131,12 @@ pausado = False
                         'url': 'https://docs.python.org/3/library/stdtypes.html'
                     }
                 ]
-            }
+            },
         )
-        
-        if created:
-            self.stdout.write(f'Lição criada: {lesson2.title}')
+        self.stdout.write(('Lição criada: ' if created else 'Lição atualizada: ') + lesson2.title)
         
         # Criar recursos para o curso 1
-        resource1, created = Resource.objects.get_or_create(
+        resource1, created = Resource.objects.update_or_create(
             course=course1,
             title='Guia de Instalação do Python',
             defaults={
@@ -139,38 +148,32 @@ pausado = False
                     'author': 'Instrutor Python'
                 },
                 'tags': ['instalação', 'configuração', 'iniciantes']
-            }
+            },
         )
-        
-        if created:
-            self.stdout.write(f'Recurso criado: {resource1.title}')
+        self.stdout.write(('Recurso criado: ' if created else 'Recurso atualizado: ') + resource1.title)
         
         # Criar curso 2: Django Web Development
-        course2, created = Course.objects.get_or_create(
+        course2, created = Course.objects.update_or_create(
             title='Django Web Development',
             defaults={
                 'description': 'Desenvolva aplicações web robustas com Django framework.',
                 'owner_id': 1,
                 'tags': ['django', 'web', 'python', 'backend'],
                 'is_published': True
-            }
+            },
         )
-        
-        if created:
-            self.stdout.write(f'Curso criado: {course2.title}')
+        self.stdout.write(('Curso criado: ' if created else 'Curso atualizado: ') + course2.title)
         
         # Criar módulo para o curso 2
-        module2, created = Module.objects.get_or_create(
+        module2, created = Module.objects.update_or_create(
             course=course2,
             title='Configuração do Django',
-            defaults={'order': 1}
+            defaults={'order': 1},
         )
-        
-        if created:
-            self.stdout.write(f'Módulo criado: {module2.title}')
+        self.stdout.write(('Módulo criado: ' if created else 'Módulo atualizado: ') + module2.title)
         
         # Criar lições para o módulo 2
-        lesson3, created = Lesson.objects.get_or_create(
+        lesson3, created = Lesson.objects.update_or_create(
             module=module2,
             title='Instalação e Configuração',
             defaults={
@@ -210,13 +213,11 @@ python manage.py runserver
                         'url': 'https://docs.djangoproject.com/'
                     }
                 ]
-            }
+            },
         )
+        self.stdout.write(('Lição criada: ' if created else 'Lição atualizada: ') + lesson3.title)
         
-        if created:
-            self.stdout.write(f'Lição criada: {lesson3.title}')
-        
-        lesson4, created = Lesson.objects.get_or_create(
+        lesson4, created = Lesson.objects.update_or_create(
             module=module2,
             title='Models e Database',
             defaults={
@@ -262,14 +263,12 @@ class ProdutoAdmin(admin.ModelAdmin):
                         'url': 'https://docs.djangoproject.com/en/stable/topics/db/models/'
                     }
                 ]
-            }
+            },
         )
-        
-        if created:
-            self.stdout.write(f'Lição criada: {lesson4.title}')
+        self.stdout.write(('Lição criada: ' if created else 'Lição atualizada: ') + lesson4.title)
         
         # Criar recursos para o curso 2
-        resource2, created = Resource.objects.get_or_create(
+        resource2, created = Resource.objects.update_or_create(
             course=course2,
             title='Django Cheat Sheet',
             defaults={
@@ -281,13 +280,11 @@ class ProdutoAdmin(admin.ModelAdmin):
                     'author': 'Django Team'
                 },
                 'tags': ['cheat-sheet', 'referência', 'django']
-            }
+            },
         )
+        self.stdout.write(('Recurso criado: ' if created else 'Recurso atualizado: ') + resource2.title)
         
-        if created:
-            self.stdout.write(f'Recurso criado: {resource2.title}')
-        
-        resource3, created = Resource.objects.get_or_create(
+        resource3, created = Resource.objects.update_or_create(
             course=course2,
             title='Tutorial Django Girls',
             defaults={
@@ -298,12 +295,10 @@ class ProdutoAdmin(admin.ModelAdmin):
                     'difficulty': 'beginner'
                 },
                 'tags': ['tutorial', 'iniciantes', 'django-girls']
-            }
+            },
         )
-        
-        if created:
-            self.stdout.write(f'Recurso criado: {resource3.title}')
+        self.stdout.write(('Recurso criado: ' if created else 'Recurso atualizado: ') + resource3.title)
         
         self.stdout.write(
-            self.style.SUCCESS('Dados de exemplo criados com sucesso!')
+            self.style.SUCCESS('Seed concluído com sucesso (idempotente). Use --reset para recriar do zero).')
         )
