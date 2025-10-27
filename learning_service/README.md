@@ -39,12 +39,14 @@ learning_service/
 │   ├── courses/          # Cursos, módulos e lições
 │   ├── enrollments/      # Matrículas
 │   ├── resources/        # Recursos de curso
-│   └── progress/         # Progresso e interações
-├── config/              # Configurações Django
-├── management/          # Comandos customizados
-├── docker-compose.yml   # Orquestração
-├── Dockerfile          # Imagem do serviço
-└── requirements.txt    # Dependências
+│   ├── progress/         # Progresso e interações
+│   └── seeding/          # Seeds e comandos de seed
+│       └── management/
+│           └── commands/
+│               └── seed_data.py  # Comando de seed do Django
+├── config/               # Configurações Django
+├── Dockerfile            # Imagem do serviço
+└── requirements.txt      # Dependências
 ```
 
 ## 🚀 Como Executar
@@ -317,6 +319,27 @@ O comando `seed_data` cria automaticamente:
 - **2 módulos**: Um para cada curso
 - **4 lições**: Conteúdo em Markdown com exemplos práticos
 - **3 recursos**: PDFs e links úteis
+
+### Como executar o seed
+
+Opcional (via Docker Compose na raiz do projeto):
+
+```powershell
+# Executa o seed no container do learning_service
+docker-compose exec learning_service python manage.py seed_data
+
+# Caso o comando não seja reconhecido (após atualizar o código),
+# reconstrua apenas o serviço do learning_service e tente novamente:
+docker-compose build learning_service
+docker-compose up -d --no-deps learning_service
+docker-compose exec learning_service python manage.py seed_data
+```
+
+Para recriar do zero (limpa apenas os registros gerados pelo seed):
+
+```powershell
+docker-compose exec learning_service python manage.py seed_data --reset
+```
 
 ## 🔐 Autenticação
 

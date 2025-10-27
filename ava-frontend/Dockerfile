@@ -24,18 +24,10 @@ FROM nginx:alpine
 HEALTHCHECK CMD wget -qO- http://localhost/healthz || exit 1
 
 # Copia artefatos do Angular para o Nginx
-# Ajuste o caminho do dist se o nome do app for diferente
+# Caminho conforme angular.json (outputPath: dist/ava-frontend)
 COPY --from=build /app/dist/ava-frontend /usr/share/nginx/html
 
-# Nginx com fallback SPA e /healthz
-RUN printf 'server {\n\
-  listen 80;\n\
-  root /usr/share/nginx/html;\n\
-  index index.html;\n\
-  location /healthz { return 200 "ok"; }\n\
-  location / {\n\
-    try_files $uri $uri/ /index.html;\n\
-  }\n\
-}\n' > /etc/nginx/conf.d/default.conf
+# Usa a configuração completa do Nginx fornecida no projeto
+COPY nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80

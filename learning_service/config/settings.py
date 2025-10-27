@@ -41,7 +41,7 @@ LOCAL_APPS = [
     'apps.enrollments',
     'apps.resources',
     'apps.progress',
-    'management',
+    'apps.seeding.apps.SeedingConfig',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
