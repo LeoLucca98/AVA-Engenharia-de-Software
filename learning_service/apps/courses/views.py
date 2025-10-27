@@ -2,6 +2,7 @@ from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
+import django_filters
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django.db import models
 from drf_spectacular.utils import extend_schema, OpenApiParameter
@@ -18,6 +19,24 @@ from apps.common.auth_helpers import (
 )
 
 
+class CourseFilterSet(django_filters.FilterSet):
+    """Filtros para Course, com tratamento especial para JSONField tags."""
+    # Permite filtrar por tags via query param ?tags=python,backend
+    tags = django_filters.CharFilter(method='filter_tags')
+
+    class Meta:
+        model = Course
+        # Deixamos tags fora do auto-mapeamento para evitar erro do JSONField
+        fields = ['owner_id', 'is_published']
+
+    def filter_tags(self, queryset, name, value):
+        # Suporta lista separada por vírgulas; exige que o curso contenha todas as tags fornecidas
+        tags_list = [t.strip() for t in value.split(',') if t.strip()]
+        if not tags_list:
+            return queryset
+        return queryset.filter(tags__contains=tags_list)
+
+
 class CourseViewSet(viewsets.ModelViewSet):
     """
     ViewSet para cursos
@@ -25,7 +44,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['owner_id', 'is_published', 'tags']
+    filterset_class = CourseFilterSet
     search_fields = ['title', 'description', 'tags']
     ordering_fields = ['created_at', 'updated_at', 'title']
     ordering = ['-created_at']
