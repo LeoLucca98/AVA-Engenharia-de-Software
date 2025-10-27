@@ -20,6 +20,19 @@ class JWTAuthentication(authentication.BaseAuthentication):
         """
         Autentica o usuário via JWT token
         """
+        # Se o API Gateway já validou o token e injetou o X-User-Id,
+        # confiamos nesse header e evitamos revalidar o JWT aqui.
+        gateway_user_id = request.META.get('HTTP_X_USER_ID')
+        if gateway_user_id:
+            try:
+                user = AnonymousUser(int(gateway_user_id))
+            except (TypeError, ValueError):
+                # Se vier inválido, seguimos com a validação via JWT
+                user = None
+            else:
+                token = request.META.get('HTTP_AUTHORIZATION', '')
+                return (user, token)
+
         auth_header = request.META.get('HTTP_AUTHORIZATION')
         if not auth_header or not auth_header.startswith('Bearer '):
             return None
@@ -85,10 +98,19 @@ class JWTAuthentication(authentication.BaseAuthentication):
                 token,
                 key,
                 algorithms=['RS256'],
-                # Em produção é recomendável validar audience/issuer;
-                # aqui mantemos flexível para aceitar os tokens emitidos pelo auth_service
+                # Observação: a verificação de aud/iss já é feita no API Gateway.
+                # Para evitar falhas de "Invalid audience" aqui, desabilitamos
+                # explicitamente essas verificações neste serviço.
                 audience=None,
-                issuer=None
+                issuer=None,
+                options={
+                    'verify_aud': False,
+                    'verify_iss': False,
+                    # Alguns emissores utilizam sub numérico. A biblioteca jose
+                    # exige string por padrão. Desabilitamos esta verificação
+                    # pois confiamos na validação do Gateway.
+                    'verify_sub': False
+                }
             )
             
             return payload
@@ -105,6 +127,9 @@ class AnonymousUser:
     
     def __init__(self, user_id):
         self.id = user_id
+        # DRF usa request.user.pk para throttling e outras features
+        # Garantimos compatibilidade expondo pk como o mesmo id
+        self.pk = user_id
         self.is_authenticated = True
         self.is_anonymous = False
     

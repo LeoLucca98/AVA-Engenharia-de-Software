@@ -2,6 +2,7 @@ from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
+import django_filters
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django.db import models
 from drf_spectacular.utils import extend_schema, OpenApiParameter
@@ -18,6 +19,24 @@ from apps.common.auth_helpers import (
 )
 
 
+class CourseFilterSet(django_filters.FilterSet):
+    """Filtros para Course, com tratamento especial para JSONField tags."""
+    # Permite filtrar por tags via query param ?tags=python,backend
+    tags = django_filters.CharFilter(method='filter_tags')
+
+    class Meta:
+        model = Course
+        # Deixamos tags fora do auto-mapeamento para evitar erro do JSONField
+        fields = ['owner_id', 'is_published']
+
+    def filter_tags(self, queryset, name, value):
+        # Suporta lista separada por vírgulas; exige que o curso contenha todas as tags fornecidas
+        tags_list = [t.strip() for t in value.split(',') if t.strip()]
+        if not tags_list:
+            return queryset
+        return queryset.filter(tags__contains=tags_list)
+
+
 class CourseViewSet(viewsets.ModelViewSet):
     """
     ViewSet para cursos
@@ -25,11 +44,18 @@ class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['owner_id', 'is_published', 'tags']
+    filterset_class = CourseFilterSet
     search_fields = ['title', 'description', 'tags']
     ordering_fields = ['created_at', 'updated_at', 'title']
     ordering = ['-created_at']
     permission_classes = [IsAuthenticatedOrTrustedHeader]
+
+    def get_permissions(self):
+        """Permissões por ação: leitura é pública; escrita requer autenticação."""
+        if self.action in ['list', 'retrieve']:
+            return [permissions.AllowAny()]
+        # Instancia as classes configuradas
+        return [permission() if isinstance(permission, type) else permission for permission in self.permission_classes]
     
     def get_serializer_class(self):
         """Retorna o serializer apropriado baseado na ação"""
@@ -79,7 +105,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     
     def perform_destroy(self, instance):
         """Verifica permissões ao deletar"""
-        user_id = extract_user_id(self.request)
+        user_id = get_user_id_from_request(self.request)
         if not user_id:
             raise permissions.PermissionDenied("Autenticação necessária")
         
@@ -95,7 +121,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def my_courses(self, request):
         """Lista cursos do usuário autenticado"""
-        user_id = extract_user_id(request)
+        user_id = get_user_id_from_request(request)
         if not user_id:
             return Response(
                 {'error': 'Autenticação necessária'}, 
@@ -120,7 +146,7 @@ class ModuleViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Filtra módulos baseado nas permissões do usuário"""
-        user_id = extract_user_id(self.request)
+        user_id = get_user_id_from_request(self.request)
         course_id = self.request.query_params.get('course')
         
         if not user_id:
@@ -135,7 +161,7 @@ class ModuleViewSet(viewsets.ModelViewSet):
     
     def perform_create(self, serializer):
         """Verifica permissões ao criar módulo"""
-        user_id = extract_user_id(self.request)
+        user_id = get_user_id_from_request(self.request)
         if not user_id:
             raise permissions.PermissionDenied("Autenticação necessária")
         
@@ -147,7 +173,7 @@ class ModuleViewSet(viewsets.ModelViewSet):
     
     def perform_update(self, serializer):
         """Verifica permissões ao atualizar"""
-        user_id = extract_user_id(self.request)
+        user_id = get_user_id_from_request(self.request)
         if not user_id:
             raise permissions.PermissionDenied("Autenticação necessária")
         
@@ -158,7 +184,7 @@ class ModuleViewSet(viewsets.ModelViewSet):
     
     def perform_destroy(self, instance):
         """Verifica permissões ao deletar"""
-        user_id = extract_user_id(self.request)
+        user_id = get_user_id_from_request(self.request)
         if not user_id:
             raise permissions.PermissionDenied("Autenticação necessária")
         
@@ -188,7 +214,7 @@ class LessonViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Filtra lições baseado nas permissões do usuário"""
-        user_id = extract_user_id(self.request)
+        user_id = get_user_id_from_request(self.request)
         
         if not user_id:
             # Usuário não autenticado - apenas lições de cursos públicos
@@ -202,7 +228,7 @@ class LessonViewSet(viewsets.ModelViewSet):
     
     def perform_create(self, serializer):
         """Verifica permissões ao criar lição"""
-        user_id = extract_user_id(self.request)
+        user_id = get_user_id_from_request(self.request)
         if not user_id:
             raise permissions.PermissionDenied("Autenticação necessária")
         
@@ -214,7 +240,7 @@ class LessonViewSet(viewsets.ModelViewSet):
     
     def perform_update(self, serializer):
         """Verifica permissões ao atualizar"""
-        user_id = extract_user_id(self.request)
+        user_id = get_user_id_from_request(self.request)
         if not user_id:
             raise permissions.PermissionDenied("Autenticação necessária")
         
@@ -225,7 +251,7 @@ class LessonViewSet(viewsets.ModelViewSet):
     
     def perform_destroy(self, instance):
         """Verifica permissões ao deletar"""
-        user_id = extract_user_id(self.request)
+        user_id = get_user_id_from_request(self.request)
         if not user_id:
             raise permissions.PermissionDenied("Autenticação necessária")
         

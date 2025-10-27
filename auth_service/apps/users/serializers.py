@@ -61,7 +61,22 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return user
 
 
-class UserLoginSerializer(TokenObtainPairSerializer):
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """
+    Serializer customizado para incluir mais dados no token JWT
+    """
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Adiciona claims customizadas
+        token['username'] = user.username
+        token['email'] = user.email
+        
+        return token
+
+
+class UserLoginSerializer(CustomTokenObtainPairSerializer):
     """
     Serializer customizado para login com JWT
     """

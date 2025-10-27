@@ -11,20 +11,21 @@ from .serializers import (
     EnrollmentCreateSerializer, MyCoursesSerializer
 )
 from apps.common.decorators import require_authentication
-from apps.common.utils import extract_user_id
+from apps.common.auth_helpers import get_user_id_from_request, IsAuthenticatedOrTrustedHeader
 
 
 class EnrollmentViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet para matrículas
-    """
+    """ViewSet para matrículas"""
+
     queryset = Enrollment.objects.all()
     serializer_class = EnrollmentSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ['course', 'user_id', 'role', 'status']
     ordering_fields = ['enrolled_at', 'updated_at']
     ordering = ['-enrolled_at']
-    
+
+    permission_classes = [IsAuthenticatedOrTrustedHeader]
+
     def get_serializer_class(self):
         """Retorna o serializer apropriado baseado na ação"""
         if self.action == 'list':
@@ -32,55 +33,55 @@ class EnrollmentViewSet(viewsets.ModelViewSet):
         elif self.action == 'create':
             return EnrollmentCreateSerializer
         return EnrollmentSerializer
-    
+
     def get_queryset(self):
         """Filtra matrículas baseado nas permissões do usuário"""
-        user_id = extract_user_id(self.request)
-        
+        user_id = get_user_id_from_request(self.request)
+
         if not user_id:
             return Enrollment.objects.none()
-        
+
         # Usuário autenticado - apenas suas matrículas
         return Enrollment.objects.filter(user_id=user_id)
-    
+
     def perform_create(self, serializer):
         """Cria matrícula com user_id do usuário autenticado"""
-        user_id = extract_user_id(self.request)
+        user_id = get_user_id_from_request(self.request)
         if not user_id:
             raise permissions.PermissionDenied("Autenticação necessária")
-        
+
         # Verifica se o usuário já está matriculado
         course = serializer.validated_data['course']
         existing_enrollment = Enrollment.objects.filter(
             course=course,
             user_id=user_id
         ).first()
-        
+
         if existing_enrollment:
             raise permissions.PermissionDenied("Usuário já está matriculado neste curso")
-        
+
         serializer.save(user_id=user_id)
-    
+
     def perform_update(self, serializer):
         """Verifica permissões ao atualizar"""
-        user_id = extract_user_id(self.request)
+        user_id = get_user_id_from_request(self.request)
         if not user_id:
             raise permissions.PermissionDenied("Autenticação necessária")
-        
+
         if serializer.instance.user_id != user_id:
             raise permissions.PermissionDenied("Apenas o próprio usuário pode editar sua matrícula")
-        
+
         serializer.save()
-    
+
     def perform_destroy(self, serializer):
         """Verifica permissões ao deletar"""
-        user_id = extract_user_id(self.request)
+        user_id = get_user_id_from_request(self.request)
         if not user_id:
             raise permissions.PermissionDenied("Autenticação necessária")
-        
+
         if serializer.instance.user_id != user_id:
             raise permissions.PermissionDenied("Apenas o próprio usuário pode cancelar sua matrícula")
-        
+
         serializer.delete()
     
     @extend_schema(
@@ -90,7 +91,7 @@ class EnrollmentViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def my_courses(self, request):
         """Lista cursos do usuário autenticado"""
-        user_id = extract_user_id(request)
+        user_id = get_user_id_from_request(request)
         if not user_id:
             return Response(
                 {'error': 'Autenticação necessária'}, 
@@ -108,7 +109,7 @@ class EnrollmentViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'])
     def enroll(self, request):
         """Matricula o usuário em um curso"""
-        user_id = extract_user_id(request)
+        user_id = get_user_id_from_request(request)
         if not user_id:
             return Response(
                 {'error': 'Autenticação necessária'}, 
@@ -144,7 +145,7 @@ class EnrollmentViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'])
     def unenroll(self, request):
         """Desmatricula o usuário de um curso"""
-        user_id = extract_user_id(request)
+        user_id = get_user_id_from_request(request)
         if not user_id:
             return Response(
                 {'error': 'Autenticação necessária'}, 
