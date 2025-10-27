@@ -74,6 +74,10 @@ import { RecommendationResponse } from '../shared/models/recommendation.model';
                       <mat-icon>folder</mat-icon>
                       {{ course.total_modules }} módulos
                     </span>
+                    <span class="stat" *ngIf="progressPercent[course.course] !== undefined">
+                      <mat-icon>trending_up</mat-icon>
+                      {{ progressPercent[course.course] }}%
+                    </span>
                   </div>
                   <div class="course-tags">
                     <mat-chip *ngFor="let tag of course.course_tags" class="tag-chip">
@@ -357,6 +361,7 @@ export class DashboardComponent implements OnInit {
   myCourses: MyCourse[] = [];
   popularCourses: Course[] = [];
   recommendations: any[] = [];
+  progressPercent: Record<number, number> = {};
   
   isLoadingMyCourses = false;
   isLoadingPopularCourses = false;
@@ -385,6 +390,20 @@ export class DashboardComponent implements OnInit {
           course_tags: c.course_tags || [],
         }));
         this.isLoadingMyCourses = false;
+
+        // Carrega progresso por curso
+        for (const c of this.myCourses) {
+          this.learningApiService.getCourseProgress(c.course).subscribe({
+            next: (ps) => {
+              const done = (ps || []).filter(p => p.completed).length;
+              const total = c.total_lessons || 0;
+              this.progressPercent[c.course] = total > 0 ? Math.round((done / total) * 100) : 0;
+            },
+            error: () => {
+              this.progressPercent[c.course] = 0;
+            }
+          });
+        }
       },
       error: (error) => {
         console.error('Error loading my courses:', error);

@@ -19,7 +19,7 @@ export const routes: Routes = [
   },
   {
     path: 'courses/:id',
-    redirectTo: 'courses'
+    loadComponent: () => import('./courses/course-detail.component').then(m => m.CourseDetailComponent)
   },
   // Meus cursos (requer login)
   {

@@ -7,7 +7,8 @@ class ProgressSerializer(serializers.ModelSerializer):
     Serializer para progresso
     """
     lesson_title = serializers.CharField(source='lesson.title', read_only=True)
-    course_title = serializers.CharField(source='lesson.course.title', read_only=True)
+    # Lesson não possui FK direta para Course; o caminho correto é lesson.module.course
+    course_title = serializers.CharField(source='lesson.module.course.title', read_only=True)
     module_title = serializers.CharField(source='lesson.module.title', read_only=True)
     
     class Meta:
@@ -37,7 +38,7 @@ class ProgressListSerializer(serializers.ModelSerializer):
     Serializer simplificado para listagem de progresso
     """
     lesson_title = serializers.CharField(source='lesson.title', read_only=True)
-    course_title = serializers.CharField(source='lesson.course.title', read_only=True)
+    course_title = serializers.CharField(source='lesson.module.course.title', read_only=True)
     
     class Meta:
         model = Progress

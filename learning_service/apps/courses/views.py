@@ -259,3 +259,42 @@ class LessonViewSet(viewsets.ModelViewSet):
             raise permissions.PermissionDenied("Apenas o proprietário pode deletar lições")
         
         instance.delete()
+
+    def retrieve(self, request, *args, **kwargs):
+        """Retorna detalhes da lição, garantindo acesso ao conteúdo apenas para matriculados ou proprietários.
+
+        Regras:
+        - Se o curso for do usuário (owner), acesso liberado
+        - Se o usuário estiver matriculado (status active), acesso liberado
+        - Caso contrário, bloqueia acesso ao conteúdo da lição
+        """
+        instance = self.get_object()
+        user_id = get_user_id_from_request(request)
+
+        # Se não autenticado, negar acesso ao conteúdo completo
+        if not user_id:
+            return Response(
+                {"error": "Autenticação necessária"}, status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        course = instance.module.course
+
+        # Owner sempre pode acessar
+        if course.owner_id == user_id:
+            serializer = self.get_serializer(instance)
+            return Response(serializer.data)
+
+        # Verifica matrícula ativa
+        from apps.enrollments.models import Enrollment
+        is_enrolled = Enrollment.objects.filter(
+            course_id=course.id, user_id=user_id, status='active'
+        ).exists()
+
+        if not is_enrolled:
+            return Response(
+                {"error": "Permissão negada. Você não está matriculado neste curso"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
