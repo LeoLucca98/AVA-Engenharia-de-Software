@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { 
   Course, 
@@ -37,9 +38,35 @@ export class LearningApiService {
       params = params.set('search', search);
     }
 
-    return this.http.get<PaginatedResponse<Course>>(
+    // Adapta a resposta do DRF (count/results) para nosso formato (items/total/...)
+    return this.http.get<any>(
       `${this.API_URL}${environment.apiEndpoints.learning.courses}`,
       { params }
+    ).pipe(
+      map((res: any) => {
+        // Se já vier no nosso formato esperado, só retorna
+        if (res && 'items' in res) {
+          return res as PaginatedResponse<Course>;
+        }
+
+        // DRF PageNumberPagination: { count, next, previous, results }
+        const total = Number(res?.count ?? 0);
+        const items: Course[] = Array.isArray(res?.results) ? res.results : (Array.isArray(res) ? res : []);
+        const totalPages = pageSize > 0 ? Math.ceil(total / pageSize) : 1;
+        const hasNext = Boolean(res?.next);
+        const hasPrevious = Boolean(res?.previous);
+
+        const adapted: PaginatedResponse<Course> = {
+          items,
+          total,
+          page,
+          page_size: pageSize,
+          total_pages: totalPages,
+          has_next: hasNext,
+          has_previous: hasPrevious
+        };
+        return adapted;
+      })
     );
   }
 
