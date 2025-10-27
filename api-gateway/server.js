@@ -141,7 +141,7 @@ const proxyOptions = {
   target: '',
   // Mantemos o host original (ex: localhost:8080) para evitar DisallowedHost no Django
   // quando o target contém nomes inválidos para RFC (ex: auth_service:8000)
-  changeOrigin: false,
+  changeOrigin: true,
   timeout: 30000,
   proxyTimeout: 30000,
   onError: (err, req, res) => {
@@ -161,8 +161,8 @@ const proxyOptions = {
       }
     });
 
-    // Garante que o header Host encaminhado ao serviço de destino seja um host válido
-    // (Django rejeita "auth_service:8000" por conter underscore)
+    // Garante que o header Host encaminhado ao serviço de destino seja o host original da requisição
+    // Isto é crucial para que o Django (e outros frameworks) valide o Host corretamente.
     if (req.headers && req.headers.host) {
       proxyReq.setHeader('host', req.headers.host);
     }

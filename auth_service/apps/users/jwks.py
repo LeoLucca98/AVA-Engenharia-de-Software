@@ -43,8 +43,8 @@ def get_or_create_jwt_keys():
     """
     Get or create JWT key pair, storing them in environment variables or files.
     """
-    private_key = getattr(settings, 'JWT_PRIVATE_KEY', None)
-    public_key = getattr(settings, 'JWT_PUBLIC_KEY', None)
+    private_key = os.getenv('JWT_PRIVATE_KEY')
+    public_key = os.getenv('JWT_PUBLIC_KEY')
     
     if not private_key or not public_key:
         # Generate new key pair
@@ -75,21 +75,21 @@ def get_jwks():
     # Get key components
     public_numbers = public_key.public_numbers()
     
-    # Convert to JWK format
+    # Helper to base64url encode without padding
+    import base64
+    def b64url_uint(val: int) -> str:
+        by = val.to_bytes((val.bit_length() + 7) // 8, byteorder='big')
+        return base64.urlsafe_b64encode(by).rstrip(b'=').decode('utf-8')
+
+    # Convert to JWK format (base64url)
     jwk = {
         "kty": "RSA",
         "use": "sig",
         "key_ops": ["verify"],
         "alg": "RS256",
         "kid": "ava-auth-key-1",  # Key ID
-        "n": public_numbers.n.to_bytes(
-            (public_numbers.n.bit_length() + 7) // 8, 
-            byteorder='big'
-        ).hex(),
-        "e": public_numbers.e.to_bytes(
-            (public_numbers.e.bit_length() + 7) // 7, 
-            byteorder='big'
-        ).hex()
+        "n": b64url_uint(public_numbers.n),
+        "e": b64url_uint(public_numbers.e)
     }
     
     return {

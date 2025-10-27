@@ -29,18 +29,20 @@ class JWTAuthentication(authentication.BaseAuthentication):
         try:
             # Primeiro, tenta validar com a chave local (HS256)
             payload = jwt.decode(
-                token, 
-                settings.SECRET_KEY, 
+                token,
+                settings.SECRET_KEY,
                 algorithms=['HS256']
             )
-            user_id = payload.get('user_id')
-            
+            # Suporta tokens com 'sub' (padrão JWT) ou 'user_id' (legado)
+            user_id = payload.get('sub') or payload.get('user_id')
+
         except JWTError:
             try:
                 # Se falhar, tenta validar via auth_service (RS256)
                 payload = self._validate_token_via_auth_service(token)
-                user_id = payload.get('user_id')
-                
+                # Suporta tokens com 'sub' (padrão) ou 'user_id' (legado)
+                user_id = payload.get('sub') or payload.get('user_id')
+
             except Exception as e:
                 logger.error(f"JWT validation failed: {e}")
                 raise exceptions.AuthenticationFailed('Token inválido')
@@ -64,25 +66,27 @@ class JWTAuthentication(authentication.BaseAuthentication):
             
             jwks = response.json()
             
-            # Decodifica o header do token para obter o kid
+            # Decodifica o header do token para obter o kid (pode estar ausente)
             unverified_header = jwt.get_unverified_header(token)
             kid = unverified_header.get('kid')
-            
-            # Encontra a chave correspondente
+
+            # Encontra a chave correspondente; se não houver kid, usa a primeira
             key = None
             for jwk in jwks.get('keys', []):
-                if jwk.get('kid') == kid:
+                if not kid or jwk.get('kid') == kid:
                     key = RSAKey(jwk, algorithm='RS256')
                     break
             
             if not key:
-                raise JWTError('Chave não encontrada')
+                raise JWTError('Chave não encontrada no JWKS')
             
             # Valida o token
             payload = jwt.decode(
                 token,
                 key,
                 algorithms=['RS256'],
+                # Em produção é recomendável validar audience/issuer;
+                # aqui mantemos flexível para aceitar os tokens emitidos pelo auth_service
                 audience=None,
                 issuer=None
             )

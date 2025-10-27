@@ -83,15 +83,10 @@ class UserLoginSerializer(TokenObtainPairSerializer):
         password = attrs.get('password')
         
         if email and password:
-            # Busca o usuário pelo email
-            try:
-                user = User.objects.get(email=email)
-                username = user.username
-            except User.DoesNotExist:
-                raise serializers.ValidationError('Credenciais inválidas.')
-            
-            # Autentica o usuário
-            user = authenticate(username=username, password=password)
+            # Importante: como o USERNAME_FIELD do modelo é 'email',
+            # devemos autenticar passando o email no parâmetro 'username'.
+            # O ModelBackend usa USERNAME_FIELD internamente ao buscar o usuário.
+            user = authenticate(username=email, password=password)
             
             if not user:
                 raise serializers.ValidationError('Credenciais inválidas.')

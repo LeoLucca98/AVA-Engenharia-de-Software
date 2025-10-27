@@ -8,20 +8,30 @@ const jwksClient = require('jwks-rsa');
 const http = require('http');
 
 // JWKS client configuration
+// Importante: requisições diretas ao Django com host contendo underscore (ex: auth_service)
+// causam 400 Bad Request. Para evitar isso, por padrão usamos o próprio gateway
+// como proxy para o endpoint JWKS, que não exige autenticação.
+// Isso funciona tanto em desenvolvimento quanto em produção dentro do container.
+// Use 127.0.0.1 para garantir IPv4 dentro do container (evita ::1 quando o servidor escuta em 0.0.0.0)
+const DEFAULT_JWKS_URL = 'http://127.0.0.1/auth/.well-known/jwks.json';
+
 const client = jwksClient({
-  jwksUri: process.env.AUTH_SERVICE_JWKS_URL || 'http://auth_service:8000/api/.well-known/jwks.json',
+  jwksUri: process.env.AUTH_SERVICE_JWKS_URL || DEFAULT_JWKS_URL,
   cache: true,
   cacheMaxAge: 600000, // 10 minutes
   rateLimit: true,
-  jwksRequestsPerMinute: 5,
-  jwksUri: process.env.AUTH_SERVICE_JWKS_URL || 'http://auth_service:8000/api/.well-known/jwks.json'
+  jwksRequestsPerMinute: 5
 });
 
 /**
  * Get signing key from JWKS
  */
 function getKey(header, callback) {
-  client.getSigningKey(header.kid, (err, key) => {
+  // Alguns emissores não incluem 'kid' no header do token.
+  // Usamos um fallback para a nossa chave padrão.
+  const kid = header.kid || 'ava-auth-key-1';
+
+  client.getSigningKey(kid, (err, key) => {
     if (err) {
       console.error('Error getting signing key:', err);
       return callback(err);
