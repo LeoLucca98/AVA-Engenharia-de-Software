@@ -54,7 +54,8 @@ class EnrollmentViewSet(viewsets.ModelViewSet):
         course = serializer.validated_data['course']
         existing_enrollment = Enrollment.objects.filter(
             course=course,
-            user_id=user_id
+            user_id=user_id,
+            status='active'
         ).first()
 
         if existing_enrollment:
@@ -73,16 +74,16 @@ class EnrollmentViewSet(viewsets.ModelViewSet):
 
         serializer.save()
 
-    def perform_destroy(self, serializer):
+    def perform_destroy(self, instance):
         """Verifica permissões ao deletar"""
         user_id = get_user_id_from_request(self.request)
         if not user_id:
             raise permissions.PermissionDenied("Autenticação necessária")
 
-        if serializer.instance.user_id != user_id:
+        if instance.user_id != user_id:
             raise permissions.PermissionDenied("Apenas o próprio usuário pode cancelar sua matrícula")
 
-        serializer.delete()
+        instance.delete()
     
     @extend_schema(
         summary="Listar cursos do usuário",
@@ -124,13 +125,22 @@ class EnrollmentViewSet(viewsets.ModelViewSet):
                 course=course,
                 user_id=user_id
             ).first()
-            
+
             if existing_enrollment:
-                return Response(
-                    {'error': 'Usuário já está matriculado neste curso'}, 
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            
+                # Se não está ativa, reativa matrícula (cancelled/completed/suspended)
+                if existing_enrollment.status != 'active':
+                    # Atualiza papel se fornecido
+                    new_role = serializer.validated_data.get('role')
+                    if new_role:
+                        existing_enrollment.role = new_role
+                    existing_enrollment.status = 'active'
+                    existing_enrollment.save()
+                    response_serializer = EnrollmentSerializer(existing_enrollment)
+                    return Response(response_serializer.data, status=status.HTTP_200_OK)
+                # Já está ativa: tornar idempotente e retornar 200 com a matrícula
+                response_serializer = EnrollmentSerializer(existing_enrollment)
+                return Response(response_serializer.data, status=status.HTTP_200_OK)
+
             # Cria a matrícula
             enrollment = serializer.save(user_id=user_id)
             response_serializer = EnrollmentSerializer(enrollment)

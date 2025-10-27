@@ -26,7 +26,8 @@ class EnrollmentSerializer(serializers.ModelSerializer):
         # Verifica se o usuário já está matriculado
         existing_enrollment = Enrollment.objects.filter(
             course=course,
-            user_id=user_id
+            user_id=user_id,
+            status='active'
         ).first()
         
         if existing_enrollment:
