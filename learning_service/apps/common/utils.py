@@ -190,37 +190,44 @@ def format_lesson_content(content: str, content_type: str = 'markdown') -> str:
 
 def extract_user_id(request) -> Optional[int]:
     """
-    Extrai o ID do usuário do token JWT na requisição
+    Extrai o ID do usuário da requisição.
+    Ordem de precedência:
+    1) Header confiável X-User-Id (injetado pelo API Gateway)
+    2) Campo "sub" do JWT (padrão)
+    3) Campo legado "user_id" do JWT
     """
+    # 1) Preferir header confiável repassado pelo gateway
+    user_id_header = request.META.get('HTTP_X_USER_ID')
+    if user_id_header:
+        try:
+            return int(user_id_header)
+        except (TypeError, ValueError):
+            pass
+
+    # 2/3) Tentar extrair do JWT sem verificação (apenas para leitura de claims)
     try:
-        # Verifica se há um header de autorização
         auth_header = request.META.get('HTTP_AUTHORIZATION', '')
         if not auth_header.startswith('Bearer '):
             return None
-        
-        # Remove o prefixo "Bearer "
+
         token = auth_header[7:]
-        
-        # Decodifica o token JWT (sem verificação de assinatura para simplicidade)
+
         import base64
         import json
-        
-        # Divide o token em partes
+
         parts = token.split('.')
         if len(parts) != 3:
             return None
-        
-        # Decodifica o payload (parte do meio)
+
         payload = parts[1]
-        # Adiciona padding se necessário
-        payload += '=' * (4 - len(payload) % 4)
-        
-        decoded_payload = base64.urlsafe_b64decode(payload)
+        padding = '=' * (-len(payload) % 4)
+        decoded_payload = base64.urlsafe_b64decode(payload + padding)
         payload_data = json.loads(decoded_payload)
-        
-        # Retorna o user_id do payload
-        return payload_data.get('user_id')
-        
+
+        # Prioriza "sub" (padrão RS256) e mantém compat com "user_id" (legado)
+        uid = payload_data.get('sub') or payload_data.get('user_id')
+        return int(uid) if uid is not None else None
+
     except Exception as e:
-        logger.warning(f"Error extracting user ID from token: {e}")
+        logger.warning(f"Error extracting user ID from request: {e}")
         return None

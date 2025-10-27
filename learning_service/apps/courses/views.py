@@ -30,6 +30,13 @@ class CourseViewSet(viewsets.ModelViewSet):
     ordering_fields = ['created_at', 'updated_at', 'title']
     ordering = ['-created_at']
     permission_classes = [IsAuthenticatedOrTrustedHeader]
+
+    def get_permissions(self):
+        """Permissões por ação: leitura é pública; escrita requer autenticação."""
+        if self.action in ['list', 'retrieve']:
+            return [permissions.AllowAny()]
+        # Instancia as classes configuradas
+        return [permission() if isinstance(permission, type) else permission for permission in self.permission_classes]
     
     def get_serializer_class(self):
         """Retorna o serializer apropriado baseado na ação"""
@@ -79,7 +86,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     
     def perform_destroy(self, instance):
         """Verifica permissões ao deletar"""
-        user_id = extract_user_id(self.request)
+        user_id = get_user_id_from_request(self.request)
         if not user_id:
             raise permissions.PermissionDenied("Autenticação necessária")
         
@@ -95,7 +102,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def my_courses(self, request):
         """Lista cursos do usuário autenticado"""
-        user_id = extract_user_id(request)
+        user_id = get_user_id_from_request(request)
         if not user_id:
             return Response(
                 {'error': 'Autenticação necessária'}, 
@@ -120,7 +127,7 @@ class ModuleViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Filtra módulos baseado nas permissões do usuário"""
-        user_id = extract_user_id(self.request)
+        user_id = get_user_id_from_request(self.request)
         course_id = self.request.query_params.get('course')
         
         if not user_id:
@@ -135,7 +142,7 @@ class ModuleViewSet(viewsets.ModelViewSet):
     
     def perform_create(self, serializer):
         """Verifica permissões ao criar módulo"""
-        user_id = extract_user_id(self.request)
+        user_id = get_user_id_from_request(self.request)
         if not user_id:
             raise permissions.PermissionDenied("Autenticação necessária")
         
@@ -147,7 +154,7 @@ class ModuleViewSet(viewsets.ModelViewSet):
     
     def perform_update(self, serializer):
         """Verifica permissões ao atualizar"""
-        user_id = extract_user_id(self.request)
+        user_id = get_user_id_from_request(self.request)
         if not user_id:
             raise permissions.PermissionDenied("Autenticação necessária")
         
@@ -158,7 +165,7 @@ class ModuleViewSet(viewsets.ModelViewSet):
     
     def perform_destroy(self, instance):
         """Verifica permissões ao deletar"""
-        user_id = extract_user_id(self.request)
+        user_id = get_user_id_from_request(self.request)
         if not user_id:
             raise permissions.PermissionDenied("Autenticação necessária")
         
@@ -188,7 +195,7 @@ class LessonViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Filtra lições baseado nas permissões do usuário"""
-        user_id = extract_user_id(self.request)
+        user_id = get_user_id_from_request(self.request)
         
         if not user_id:
             # Usuário não autenticado - apenas lições de cursos públicos
@@ -202,7 +209,7 @@ class LessonViewSet(viewsets.ModelViewSet):
     
     def perform_create(self, serializer):
         """Verifica permissões ao criar lição"""
-        user_id = extract_user_id(self.request)
+        user_id = get_user_id_from_request(self.request)
         if not user_id:
             raise permissions.PermissionDenied("Autenticação necessária")
         
@@ -214,7 +221,7 @@ class LessonViewSet(viewsets.ModelViewSet):
     
     def perform_update(self, serializer):
         """Verifica permissões ao atualizar"""
-        user_id = extract_user_id(self.request)
+        user_id = get_user_id_from_request(self.request)
         if not user_id:
             raise permissions.PermissionDenied("Autenticação necessária")
         
@@ -225,7 +232,7 @@ class LessonViewSet(viewsets.ModelViewSet):
     
     def perform_destroy(self, instance):
         """Verifica permissões ao deletar"""
-        user_id = extract_user_id(self.request)
+        user_id = get_user_id_from_request(self.request)
         if not user_id:
             raise permissions.PermissionDenied("Autenticação necessária")
         

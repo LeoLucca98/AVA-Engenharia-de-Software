@@ -172,7 +172,7 @@ SIMPLE_JWT = {
     'ALGORITHM': 'RS256',
     'SIGNING_KEY': None,  # Will be set dynamically
     'VERIFYING_KEY': None,  # Will be set dynamically
-    'AUDIENCE': 'ava-microservices',
+    'AUDIENCE': ['ava-microservices', 'learning-service', 'recommendation-service'],
     'ISSUER': 'ava-auth-service',
     'JWK_URL': None,
     'LEEWAY': 0,

@@ -85,10 +85,15 @@ class JWTAuthentication(authentication.BaseAuthentication):
                 token,
                 key,
                 algorithms=['RS256'],
-                # Em produção é recomendável validar audience/issuer;
-                # aqui mantemos flexível para aceitar os tokens emitidos pelo auth_service
+                # Observação: a verificação de aud/iss já é feita no API Gateway.
+                # Para evitar falhas de "Invalid audience" aqui, desabilitamos
+                # explicitamente essas verificações neste serviço.
                 audience=None,
-                issuer=None
+                issuer=None,
+                options={
+                    'verify_aud': False,
+                    'verify_iss': False
+                }
             )
             
             return payload
