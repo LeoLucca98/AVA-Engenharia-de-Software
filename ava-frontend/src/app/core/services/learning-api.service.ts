@@ -145,9 +145,12 @@ export class LearningApiService {
       params = params.set('module__course', courseId.toString());
     }
 
-    return this.http.get<Lesson[]>(
+    // Adapta caso o backend retorne paginação (count/results)
+    return this.http.get<any>(
       `${this.API_URL}/learning/lessons/`,
       { params }
+    ).pipe(
+      map(res => Array.isArray(res) ? res : (Array.isArray(res?.results) ? res.results : []))
     );
   }
 
@@ -200,8 +203,10 @@ export class LearningApiService {
 
   // Progress
   getMyProgress(): Observable<Progress[]> {
-    return this.http.get<Progress[]>(
+    return this.http.get<any>(
       `${this.API_URL}${environment.apiEndpoints.learning.progress}`
+    ).pipe(
+      map(res => Array.isArray(res) ? res : (Array.isArray(res?.results) ? res.results : []))
     );
   }
 
@@ -212,8 +217,10 @@ export class LearningApiService {
   }
 
   getCourseProgress(courseId: number): Observable<Progress[]> {
-    return this.http.get<Progress[]>(
+    return this.http.get<any>(
       `${this.API_URL}${environment.apiEndpoints.learning.progress}course_progress/?course_id=${courseId}`
+    ).pipe(
+      map(res => Array.isArray(res) ? res : (Array.isArray(res?.results) ? res.results : []))
     );
   }
 

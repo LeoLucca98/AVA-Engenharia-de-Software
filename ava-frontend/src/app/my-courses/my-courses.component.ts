@@ -46,6 +46,7 @@ import { MyCourse } from '../shared/models/course.model';
             <div class="course-stats">
               <span class="stat"><mat-icon>menu_book</mat-icon>{{ mc.total_lessons }} lições</span>
               <span class="stat"><mat-icon>folder</mat-icon>{{ mc.total_modules }} módulos</span>
+              <span class="stat" *ngIf="progressPercent[mc.course] !== undefined"><mat-icon>trending_up</mat-icon>{{ progressPercent[mc.course] }}%</span>
             </div>
             <div class="course-tags">
               <mat-chip *ngFor="let tag of mc.course_tags" class="tag-chip">{{ tag }}</mat-chip>
@@ -77,6 +78,7 @@ import { MyCourse } from '../shared/models/course.model';
 export class MyCoursesComponent implements OnInit {
   myCourses: MyCourse[] = [];
   isLoading = false;
+  progressPercent: Record<number, number> = {};
 
   constructor(private learningApi: LearningApiService, private router: Router) {}
 
@@ -90,6 +92,18 @@ export class MyCoursesComponent implements OnInit {
       next: (res) => {
         this.myCourses = res || [];
         this.isLoading = false;
+
+        // Carrega progresso de cada curso
+        for (const c of this.myCourses) {
+          this.learningApi.getCourseProgress(c.course).subscribe({
+            next: (ps) => {
+              const done = (ps || []).filter(p => p.completed).length;
+              const total = c.total_lessons || 0;
+              this.progressPercent[c.course] = total > 0 ? Math.round((done / total) * 100) : 0;
+            },
+            error: () => this.progressPercent[c.course] = 0
+          });
+        }
       },
       error: (err) => {
         console.error('Erro ao carregar meus cursos', err);
