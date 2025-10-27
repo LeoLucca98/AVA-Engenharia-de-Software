@@ -29,10 +29,9 @@ class AuthorizationError(Exception):
 
 def get_jwks_from_auth_service() -> Dict[str, Any]:
     """
-    Fetch JWKS from auth service.
+    Fetch JWKS from auth service. Prefer the API Gateway as proxy to avoid invalid Host issues.
     """
-    auth_service_url = os.getenv('AUTH_SERVICE_URL', 'http://auth_service:8000')
-    jwks_url = f"{auth_service_url}/api/.well-known/jwks.json"
+    jwks_url = os.getenv('AUTH_SERVICE_JWKS_URL', 'http://api-gateway/auth/.well-known/jwks.json')
     
     try:
         response = requests.get(jwks_url, timeout=5)

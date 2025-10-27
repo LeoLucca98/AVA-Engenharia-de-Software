@@ -121,7 +121,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Django REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # Use nossa autenticação customizada que aceita HS256 (legado) e RS256 via JWKS
         'apps.common.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': [
@@ -232,8 +232,11 @@ SPECTACULAR_SETTINGS = {
 }
 
 # Auth Service Configuration
-AUTH_SERVICE_URL = os.environ.get('AUTH_SERVICE_URL', 'http://auth_service:8000')
-AUTH_SERVICE_JWKS_URL = f"{AUTH_SERVICE_URL}/.well-known/jwks.json"
+# Para validação RS256, use o API Gateway como proxy do JWKS, evitando problemas de Host inválido
+AUTH_SERVICE_JWKS_URL = os.environ.get(
+    'AUTH_SERVICE_JWKS_URL',
+    'http://api-gateway/auth/.well-known/jwks.json'
+)
 
 # Logging
 LOGGING = {
