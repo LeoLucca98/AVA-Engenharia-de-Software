@@ -379,7 +379,11 @@ export class DashboardComponent implements OnInit {
     this.isLoadingMyCourses = true;
     this.learningApiService.getMyCourses().subscribe({
       next: (courses) => {
-        this.myCourses = courses;
+        // Garante arrays definidos para evitar erros em templates
+        this.myCourses = (courses || []).map(c => ({
+          ...c,
+          course_tags: c.course_tags || [],
+        }));
         this.isLoadingMyCourses = false;
       },
       error: (error) => {
@@ -393,7 +397,10 @@ export class DashboardComponent implements OnInit {
     this.isLoadingPopularCourses = true;
     this.learningApiService.getCourses(1, 6).subscribe({
       next: (response) => {
-        this.popularCourses = response.items;
+        this.popularCourses = (response?.items || []).map(c => ({
+          ...c,
+          tags: c.tags || [],
+        }));
         this.isLoadingPopularCourses = false;
       },
       error: (error) => {
@@ -410,7 +417,7 @@ export class DashboardComponent implements OnInit {
     if (user && user.id) {
       this.recApiService.getUserRecommendations(user.id, 5).subscribe({
         next: (response) => {
-          this.recommendations = response.recommendations;
+          this.recommendations = response?.recommendations || [];
           this.isLoadingRecommendations = false;
         },
         error: (error) => {

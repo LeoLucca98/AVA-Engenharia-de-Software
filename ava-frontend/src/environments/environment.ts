@@ -1,6 +1,9 @@
 export const environment = {
   production: false,
-  apiBaseUrl: 'http://localhost:8080',
+  // Em desenvolvimento usamos o proxy do Angular (proxy.conf.json),
+  // então a base deve ser vazia para que as chamadas sejam relativas
+  // e evitarem CORS (ex.: "/auth/login/" será proxyado para 8080).
+  apiBaseUrl: '',
   apiEndpoints: {
     auth: {
       login: '/auth/login/',

@@ -40,7 +40,8 @@ LOCAL_APPS = [
     'apps.courses',
     'apps.enrollments',
     'apps.resources',
-    'apps.progress',
+    # App 'progress' está na raiz do projeto, não dentro de apps/
+    'progress',
     'apps.seeding.apps.SeedingConfig',
 ]
 

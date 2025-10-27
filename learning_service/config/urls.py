@@ -22,7 +22,8 @@ urlpatterns = [
     path('learning/', include('apps.courses.urls')),
     path('learning/', include('apps.enrollments.urls')),
     path('learning/', include('apps.resources.urls')),
-    path('learning/', include('apps.progress.urls')),
+    # App progress fica fora de apps/
+    path('learning/', include('progress.urls')),
     
     # Health check
     path('healthz/', health_check, name='health_check'),

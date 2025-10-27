@@ -267,6 +267,21 @@ ALLOWED_HOSTS=<domínios>
 ALLOWED_ORIGINS=<origins>
 ```
 
+Ou use o template pronto e ajuste seu domínio:
+
+```bash
+cp env.prod.example .env
+# Edite .env e defina:
+# - SECRET_KEY (valor forte)
+# - ALLOWED_HOSTS (inclua o domínio público do gateway)
+# - ALLOWED_ORIGINS e CORS_ALLOWED_ORIGINS (inclua o domínio público do frontend)
+```
+
+Frontend (Angular)
+- Em build de produção local (docker-compose): `src/environments/environment.prod.ts` já aponta para `http://localhost:8080` (API Gateway). Não é necessário proxy do Angular.
+- Em domínio público: altere `apiBaseUrl` para `https://api.seudominio.com` (ou o domínio do seu gateway) antes do build.
+- O container `ava-frontend` serve o build estático com Nginx (arquivo `ava-frontend/nginx.conf`).
+
 ### **2. Deploy**
 
 ```bash
@@ -374,5 +389,6 @@ Para suporte e dúvidas:
 2. Consulte o [BOOTSTRAP.md](BOOTSTRAP.md) para problemas de inicialização
 3. Execute `make help` para ver todos os comandos disponíveis
 4. Abra uma issue no repositório
-#   A V A - E n g e n h a r i a - d e - S o f t w a r e  
+#   A V A - E n g e n h a r i a - d e - S o f t w a r e 
+ 
  

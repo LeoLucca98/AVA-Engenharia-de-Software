@@ -1,6 +1,9 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://api.ava.com',
+  // Em produção (Docker Compose local), o API Gateway publica em http://localhost:8080.
+  // Ajuste este valor para o domínio público do gateway no seu ambiente real,
+  // ex.: 'https://api.seudominio.com'.
+  apiBaseUrl: 'http://localhost:8080',
   apiEndpoints: {
     auth: {
       login: '/auth/login/',
