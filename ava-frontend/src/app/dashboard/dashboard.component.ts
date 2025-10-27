@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 import { LearningApiService } from '../core/services/learning-api.service';
 import { RecApiService } from '../core/services/rec-api.service';
@@ -24,7 +24,8 @@ import { RecommendationResponse } from '../shared/models/recommendation.model';
     MatIconModule,
     MatProgressSpinnerModule,
     MatChipsModule,
-    MatGridListModule
+    MatGridListModule,
+    RouterModule
   ],
   template: `
     <div class="dashboard-container">

@@ -30,6 +30,8 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+// Responder preflight CORS rapidamente
+app.options('*', cors(corsOptions));
 
 // Compression
 app.use(compression());
@@ -111,9 +113,35 @@ const LEARNING_SERVICE_URL = process.env.LEARNING_SERVICE_URL || 'http://learnin
 const RECOMMENDATION_SERVICE_URL = process.env.RECOMMENDATION_SERVICE_URL || 'http://recommendation_service:8000';
 
 // Proxy configuration
+// Função utilitária para reenviar o corpo quando o Express já fez o parse
+function reStreamBodyIfNeeded(proxyReq, req) {
+  if (!req.body || !Object.keys(req.body).length) return;
+
+  let contentType = proxyReq.getHeader('Content-Type') || '';
+  if (!contentType && req.headers['content-type']) {
+    contentType = req.headers['content-type'];
+    proxyReq.setHeader('Content-Type', contentType);
+  }
+  let bodyData;
+
+  if (contentType.includes('application/json')) {
+    bodyData = JSON.stringify(req.body);
+  } else if (contentType.includes('application/x-www-form-urlencoded')) {
+    const querystring = require('querystring');
+    bodyData = querystring.stringify(req.body);
+  }
+
+  if (bodyData) {
+    proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+    proxyReq.write(bodyData);
+  }
+}
+
 const proxyOptions = {
   target: '',
-  changeOrigin: true,
+  // Mantemos o host original (ex: localhost:8080) para evitar DisallowedHost no Django
+  // quando o target contém nomes inválidos para RFC (ex: auth_service:8000)
+  changeOrigin: false,
   timeout: 30000,
   proxyTimeout: 30000,
   onError: (err, req, res) => {
@@ -132,6 +160,18 @@ const proxyOptions = {
         proxyReq.setHeader(header, req.headers[header]);
       }
     });
+
+    // Garante que o header Host encaminhado ao serviço de destino seja um host válido
+    // (Django rejeita "auth_service:8000" por conter underscore)
+    if (req.headers && req.headers.host) {
+      proxyReq.setHeader('host', req.headers.host);
+    }
+
+    // Reenvia o corpo (body) da requisição quando já foi parseado pelo Express
+    // IMPORTANTE: escrever o body por último, pois após escrever não é possível alterar headers
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      reStreamBodyIfNeeded(proxyReq, req);
+    }
   }
 };
 

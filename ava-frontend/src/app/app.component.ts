@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,6 +8,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatDividerModule } from '@angular/material/divider';
 
 import { AuthService } from './core/services/auth.service';
 import { User } from './shared/models/user.model';
@@ -18,13 +19,15 @@ import { User } from './shared/models/user.model';
   imports: [
     CommonModule,
     RouterOutlet,
+    RouterModule,
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
     MatSidenavModule,
     MatListModule,
     MatMenuModule,
-    MatBadgeModule
+    MatBadgeModule,
+    MatDividerModule
   ],
   template: `
     <div class="app-container">
