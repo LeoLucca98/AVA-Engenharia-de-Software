@@ -1,5 +1,8 @@
 node_modules
 npm-debug.log
+.angular
+.angular/**
+*.log
 dist
 .git
 .gitignore

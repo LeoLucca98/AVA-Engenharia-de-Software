@@ -132,7 +132,8 @@ def log_interaction(view_func):
         # Registra a interação se for bem-sucedida
         if response.status_code in [200, 201, 204] and user_id:
             try:
-                from apps.progress.models import Interaction
+                # App progress está na raiz (progress.models)
+                from progress.models import Interaction
                 
                 # Determina o tipo de interação baseado no método HTTP
                 interaction_type = 'view'

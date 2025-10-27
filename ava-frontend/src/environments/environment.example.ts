@@ -1,6 +1,7 @@
 export const environment = {
   production: false,
-  apiBaseUrl: 'http://localhost:8080',
+  // Use proxy em dev: deixe vazio para evitar CORS
+  apiBaseUrl: '',
   apiEndpoints: {
     auth: {
       login: '/auth/login/',
