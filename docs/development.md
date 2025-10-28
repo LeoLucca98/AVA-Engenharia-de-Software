@@ -416,23 +416,3 @@ git push origin feature/nova-funcionalidade
 }
 ```
 
-## 🆘 Suporte
-
-### Problemas Comuns
-
-1. **Container não inicia**: Verificar logs com `docker-compose logs <service>`
-2. **Banco não conecta**: Verificar se o container do banco está rodando
-3. **JWT inválido**: Verificar se o JWKS está acessível
-4. **CORS error**: Verificar ALLOWED_ORIGINS no .env
-
-### Contato
-
-- **Slack**: #ava-dev
-- **Email**: dev@ava.com
-- **Issues**: GitHub Issues
-- **Wiki**: Documentação interna
-
----
-
-**Última atualização**: $(date)
-**Versão**: 1.0.0
