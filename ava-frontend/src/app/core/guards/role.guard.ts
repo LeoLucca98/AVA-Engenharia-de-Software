@@ -26,11 +26,11 @@ export const roleGuard: CanActivateFn = (route, state) => {
   }
 
   // Verificar se o usuário tem pelo menos um dos roles necessários
-  // Nota: Esta implementação assume que o role está armazenado no token JWT
-  // ou que há um endpoint para verificar o role do usuário
-  const userRole = authService.getUserRole();
+  const userRoles = authService.getUserRoles();
   
-  if (!userRole || !requiredRoles.includes(userRole)) {
+  const hasRequiredRole = requiredRoles.some(role => userRoles.includes(role));
+  
+  if (!hasRequiredRole) {
     router.navigate(['/dashboard']);
     return false;
   }

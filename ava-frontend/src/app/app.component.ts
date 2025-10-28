@@ -99,6 +99,13 @@ import { User } from './shared/models/user.model';
               <mat-icon matListItemIcon>trending_up</mat-icon>
               <span matListItemTitle>Progresso</span>
             </a>
+            
+            <mat-divider *ngIf="isAdmin()"></mat-divider>
+            
+            <a mat-list-item routerLink="/admin/courses" routerLinkActive="active" *ngIf="isAdmin()">
+              <mat-icon matListItemIcon>admin_panel_settings</mat-icon>
+              <span matListItemTitle>Gerenciar Cursos</span>
+            </a>
           </mat-nav-list>
         </mat-sidenav>
 
@@ -189,5 +196,9 @@ export class AppComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  isAdmin(): boolean {
+    return this.authService.isAdmin();
   }
 }

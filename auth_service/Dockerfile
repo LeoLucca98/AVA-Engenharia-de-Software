@@ -26,6 +26,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy project
 COPY . /app/
 
+# Copy and set entrypoint
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
 # Create logs directory
 RUN mkdir -p /app/logs
 
@@ -36,6 +40,9 @@ USER appuser
 
 # Expose port
 EXPOSE 8000
+
+# Use entrypoint
+ENTRYPOINT ["/app/entrypoint.sh"]
 
 # Run the application
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
@@ -49,11 +56,15 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy project
 COPY . /app/
 
+# Copy and set entrypoint
+COPY entrypoint.sh /app/entrypoint.sh
+
 # Create logs directory
 RUN mkdir -p /app/logs
 
 # Create a non-root user
 RUN adduser --disabled-password --gecos '' appuser
+RUN chmod +x /app/entrypoint.sh
 RUN chown -R appuser:appuser /app
 USER appuser
 
@@ -63,6 +74,9 @@ EXPOSE 8000
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:8000/healthz/ || exit 1
+
+# Use entrypoint
+ENTRYPOINT ["/app/entrypoint.sh"]
 
 # Run the application
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "config.wsgi:application"]

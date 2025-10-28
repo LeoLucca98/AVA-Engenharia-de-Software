@@ -35,6 +35,12 @@ export class AuthService {
     const user = this.getStoredUser();
     
     if (token && user) {
+      // Atualizar roles do token se necessário
+      const roles = this.extractRolesFromToken(token);
+      if (roles && (!user.roles || user.roles.length === 0)) {
+        user.roles = roles;
+        this.setCurrentUser(user); // Atualiza storage
+      }
       this.currentUserSubject.next(user);
       this.startTokenRefresh();
     }
@@ -47,6 +53,11 @@ export class AuthService {
     ).pipe(
       tap(response => {
         this.setTokens(response.access, response.refresh);
+        // Extrair roles do token JWT e adicionar ao user
+        const roles = this.extractRolesFromToken(response.access);
+        if (roles) {
+          response.user.roles = roles;
+        }
         this.setCurrentUser(response.user);
         this.startTokenRefresh();
       }),
@@ -105,6 +116,13 @@ export class AuthService {
       `${this.API_URL}${environment.apiEndpoints.auth.user}`
     ).pipe(
       tap(user => {
+        // Se o user não tem roles, tenta extrair do token
+        if (!user.roles || user.roles.length === 0) {
+          const roles = this.extractRolesFromToken(this.getAccessToken());
+          if (roles) {
+            user.roles = roles;
+          }
+        }
         this.setCurrentUser(user);
       }),
       catchError(error => {
@@ -133,9 +151,32 @@ export class AuthService {
 
   getUserRole(): string | null {
     const user = this.getCurrentUser();
-    // Implementar lógica para obter role do usuário
-    // Pode ser do token JWT ou de uma propriedade do usuário
-    return user ? 'student' : null; // Placeholder
+    if (!user) return null;
+    
+    // Retorna o primeiro role (prioridade: admin > instructor > student)
+    const roles = user.roles || this.extractRolesFromToken(this.getAccessToken());
+    if (roles && roles.length > 0) {
+      if (roles.includes('admin')) return 'admin';
+      if (roles.includes('instructor')) return 'instructor';
+      return roles[0];
+    }
+    
+    return 'student'; // Default
+  }
+
+  getUserRoles(): string[] {
+    const user = this.getCurrentUser();
+    if (!user) return [];
+    
+    return user.roles || this.extractRolesFromToken(this.getAccessToken()) || ['student'];
+  }
+
+  hasRole(role: string): boolean {
+    return this.getUserRoles().includes(role);
+  }
+
+  isAdmin(): boolean {
+    return this.hasRole('admin');
   }
 
   private setTokens(accessToken: string, refreshToken: string): void {
@@ -188,6 +229,18 @@ export class AuthService {
       return payload.exp < currentTime;
     } catch (error) {
       return true;
+    }
+  }
+
+  private extractRolesFromToken(token: string | null): string[] | null {
+    if (!token) return null;
+    
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.roles || null;
+    } catch (error) {
+      console.error('Error extracting roles from token:', error);
+      return null;
     }
   }
 }

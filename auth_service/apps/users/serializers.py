@@ -72,6 +72,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         # Adiciona claims customizadas
         token['username'] = user.username
         token['email'] = user.email
+        # Adiciona roles do usuário
+        token['roles'] = user.get_roles()
         
         return token
 
@@ -125,11 +127,16 @@ class UserSerializer(serializers.ModelSerializer):
     Serializer para dados do usuário
     """
     full_name = serializers.ReadOnlyField()
+    roles = serializers.SerializerMethodField()
     
     class Meta:
         model = User
-        fields = ('id', 'email', 'username', 'first_name', 'last_name', 'full_name', 'is_active', 'date_joined')
-        read_only_fields = ('id', 'email', 'username', 'is_active', 'date_joined')
+        fields = ('id', 'email', 'username', 'first_name', 'last_name', 'full_name', 'is_active', 'date_joined', 'roles')
+        read_only_fields = ('id', 'email', 'username', 'is_active', 'date_joined', 'roles')
+    
+    def get_roles(self, obj):
+        """Retorna os roles do usuário"""
+        return obj.get_roles()
     
     def update(self, instance, validated_data):
         """

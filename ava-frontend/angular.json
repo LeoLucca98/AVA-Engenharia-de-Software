@@ -64,12 +64,16 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "buildTarget": "ava-frontend:build:production"
             },
             "development": {
-              "buildTarget": "ava-frontend:build:development"
+              "buildTarget": "ava-frontend:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

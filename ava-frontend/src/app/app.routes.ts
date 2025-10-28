@@ -44,6 +44,13 @@ export const routes: Routes = [
     loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent),
     canActivate: [authGuard]
   },
+  // Admin - Gerenciamento de cursos (requer role admin)
+  {
+    path: 'admin/courses',
+    loadComponent: () => import('./courses/course-admin.component').then(m => m.CourseAdminComponent),
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['admin'] }
+  },
   {
     path: '**',
     loadComponent: () => import('./shared/components/not-found/not-found.component').then(m => m.NotFoundComponent)

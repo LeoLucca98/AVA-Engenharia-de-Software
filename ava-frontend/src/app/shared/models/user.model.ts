@@ -7,6 +7,7 @@ export interface User {
   full_name: string;
   is_active: boolean;
   date_joined: string;
+  roles?: string[];
 }
 
 export interface LoginRequest {

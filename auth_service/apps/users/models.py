@@ -41,3 +41,16 @@ class User(AbstractUser):
     @property
     def full_name(self):
         return f"{self.first_name} {self.last_name}".strip()
+    
+    def get_roles(self):
+        """
+        Retorna os roles do usuário baseado em permissões.
+        Roles podem ser: 'admin', 'instructor', 'student'
+        """
+        roles = []
+        if self.is_superuser or self.is_staff:
+            roles.append('admin')
+        # Por padrão, todos os usuários têm role 'student'
+        if 'student' not in roles:
+            roles.append('student')
+        return roles
