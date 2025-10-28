@@ -4,11 +4,25 @@
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
 // Global styles
+:root {
+  // Font tokens (easy to swap)
+  --font-body: 'Roboto', sans-serif;
+  --font-heading: 'Inter', 'Roboto', sans-serif;
+  --font-description: 'Inter', 'Roboto', sans-serif;
+  // Angular Material typography tokens overrides (ensure Inter is used)
+  --mat-card-title-text-font: 'Inter', 'Roboto', sans-serif;
+  --mat-card-subtitle-text-font: 'Inter', 'Roboto', sans-serif;
+  // Text color tokens
+  --text-body: #1a1a1a;
+  --text-subtle: #333333;
+}
+
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  font-family: 'Roboto', sans-serif;
+  font-family: var(--font-body);
+  color: var(--text-body);
 }
 
 .app-container {
@@ -77,6 +91,71 @@ html, body {
   margin-top: 8px;
 }
 
+// Typography adjustments for better contrast and font families
+// Course titles and task/course descriptions should use dark fonts
+// Apply new font to titles and descriptions
+mat-card-title, .mat-mdc-card-title {
+  color: var(--text-body);
+  font-family: var(--font-heading);
+  font-weight: 600;
+}
+
+mat-card-subtitle, .mat-mdc-card-subtitle {
+  color: var(--text-subtle);
+  font-family: var(--font-description);
+  font-weight: 400;
+}
+
+// Page title heading
+.page-title {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  color: var(--text-body);
+}
+
+// Default readable color across common text elements
+:where(h1, h2, h3, h4, h5, h6,
+       p, span, li, small, label,
+       strong, em) {
+  color: var(--text-body);
+}
+
+// Ensure good contrast for any text inside Material cards in light mode
+.mat-mdc-card,
+.mat-card,
+.mat-mdc-card .mat-mdc-card-content,
+.mat-card .mat-card-content,
+.mat-mdc-card .mat-mdc-card-content p,
+.mat-card .mat-card-content p,
+.mat-mdc-card .mat-mdc-card-content li,
+.mat-card .mat-card-content li,
+.mat-mdc-card .mat-mdc-card-content h1,
+.mat-card .mat-card-content h1,
+.mat-mdc-card .mat-mdc-card-content h2,
+.mat-card .mat-card-content h2,
+.mat-mdc-card .mat-mdc-card-content h3,
+.mat-card .mat-card-content h3,
+.mat-mdc-card .mat-mdc-card-content h4,
+.mat-card .mat-card-content h4,
+.mat-mdc-card .mat-mdc-card-content h5,
+.mat-card .mat-card-content h5,
+.mat-mdc-card .mat-mdc-card-content h6,
+.mat-card .mat-card-content h6 {
+  color: var(--text-body);
+}
+
+// Generic fallbacks for potential task markup blocks
+.task-title { color: var(--text-body); font-family: var(--font-heading); font-weight: 600; }
+.task-description { color: var(--text-body); font-family: var(--font-description); }
+
+// Code blocks inside descriptions
+.mat-mdc-card .mat-mdc-card-content pre,
+.mat-mdc-card .mat-mdc-card-content code,
+.mat-card .mat-card-content pre,
+.mat-card .mat-card-content code {
+  color: var(--text-body);
+}
+
 // Card styles
 .course-card {
   transition: transform 0.2s ease-in-out;
@@ -105,8 +184,49 @@ html, body {
 
 // Dark theme support
 @media (prefers-color-scheme: dark) {
-  .mat-mdc-card {
+  .mat-mdc-card, .mat-card {
     background-color: #424242;
     color: white;
   }
+
+  // Mantenha bom contraste apenas dentro de cards no modo escuro
+  .mat-mdc-card mat-card-title,
+  .mat-mdc-card .mat-mdc-card-title,
+  .mat-card mat-card-title,
+  .mat-card .mat-mdc-card-title {
+    color: #1a1a1a;
+    font-family: var(--font-heading);
+  }
+
+  .mat-mdc-card mat-card-subtitle,
+  .mat-mdc-card .mat-mdc-card-subtitle,
+  .mat-card mat-card-subtitle,
+  .mat-card .mat-mdc-card-subtitle {
+    color: #1a1a1a;
+    font-family: var(--font-description);
+  }
+
+  .mat-mdc-card .mat-mdc-card-content,
+  .mat-card .mat-card-content,
+  .mat-mdc-card .mat-mdc-card-content p,
+  .mat-card .mat-card-content p,
+  .mat-mdc-card .mat-mdc-card-content li,
+  .mat-card .mat-card-content li,
+  .mat-mdc-card .mat-mdc-card-content h1,
+  .mat-card .mat-card-content h1,
+  .mat-mdc-card .mat-mdc-card-content h2,
+  .mat-card .mat-card-content h2,
+  .mat-mdc-card .mat-mdc-card-content h3,
+  .mat-card .mat-card-content h3,
+  .mat-mdc-card .mat-mdc-card-content h4,
+  .mat-card .mat-card-content h4,
+  .mat-mdc-card .mat-mdc-card-content h5,
+  .mat-card .mat-card-content h5,
+  .mat-mdc-card .mat-mdc-card-content h6,
+  .mat-card .mat-card-content h6 { color: #1a1a1a; }
+
+  .mat-mdc-card .mat-mdc-card-content pre,
+  .mat-mdc-card .mat-mdc-card-content code,
+  .mat-card .mat-card-content pre,
+  .mat-card .mat-card-content code { color: #1a1a1a; }
 }
