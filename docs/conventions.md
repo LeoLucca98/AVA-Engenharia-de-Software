@@ -594,13 +594,6 @@ services:
 - Melhorada validação de JWT
 ```
 
-## 📞 Suporte
-
-### Contatos
-
-- **Tech Lead**: tech-lead@yourdomain.com
-- **DevOps**: devops@yourdomain.com
-- **Slack**: #ava-dev
 
 ### Recursos
 
@@ -610,5 +603,5 @@ services:
 
 ---
 
-**Última atualização**: $(date)
+**Última atualização**: 
 **Versão**: 1.0.0
