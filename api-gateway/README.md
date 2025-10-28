@@ -218,6 +218,3 @@ Configure logs centralizados e monitoramento de métricas.
 4. Push para a branch
 5. Abra um Pull Request
 
-## 📄 Licença
-
-Este projeto está sob a licença MIT.
