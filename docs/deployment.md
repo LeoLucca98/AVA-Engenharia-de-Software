@@ -664,22 +664,3 @@ docker-compose up -d
 # Restart de todos os serviços
 docker-compose restart
 ```
-
-## 📞 Suporte
-
-### Contatos de Emergência
-
-- **DevOps**: devops@yourdomain.com
-- **On-call**: +55 11 99999-9999
-- **Slack**: #ava-production
-
-### Documentação
-
-- **Runbooks**: `/docs/runbooks/`
-- **Playbooks**: `/docs/playbooks/`
-- **Post-mortems**: `/docs/postmortems/`
-
----
-
-**Última atualização**: $(date)
-**Versão**: 1.0.0
