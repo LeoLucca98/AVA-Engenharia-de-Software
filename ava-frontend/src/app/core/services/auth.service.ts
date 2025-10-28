@@ -62,11 +62,6 @@ export class AuthService {
       `${this.API_URL}${environment.apiEndpoints.auth.register}`,
       userData
     ).pipe(
-      tap(response => {
-        this.setTokens(response.access, response.refresh);
-        this.setCurrentUser(response.user);
-        this.startTokenRefresh();
-      }),
       catchError(error => {
         console.error('Register error:', error);
         return throwError(() => error);

@@ -262,12 +262,12 @@ export class RegisterComponent {
       this.authService.register(registerData).subscribe({
         next: (response) => {
           this.isLoading = false;
-          this.snackBar.open('Conta criada com sucesso!', 'Fechar', {
-            duration: 3000,
+          this.snackBar.open('Conta criada com sucesso! Por favor, faça o login.', 'Fechar', {
+            duration: 5000,
             panelClass: ['success-snackbar']
           });
 
-          this.router.navigate(['/dashboard']);
+          this.router.navigate(['/auth/login']);
         },
         error: (error) => {
           this.isLoading = false;
